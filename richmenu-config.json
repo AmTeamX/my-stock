@@ -1,6 +1,3 @@
-# Rich Menu Configuration for LINE LIFF App
-# This JSON should be used to create a Rich Menu via LINE Messaging API
-
 {
   "size": {
     "width": 2500,
@@ -20,7 +17,7 @@
       "action": {
         "type": "uri",
         "label": "ดูสต็อก",
-        "uri": "https://liff.line.me/YOUR_LIFF_ID"
+        "uri": "https://liff.line.me/2010524167-Igy3nL47"
       }
     },
     {
@@ -33,7 +30,7 @@
       "action": {
         "type": "uri",
         "label": "เพิ่มสต็อก",
-        "uri": "https://liff.line.me/YOUR_LIFF_ID/add"
+        "uri": "https://liff.line.me/2010524167-Igy3nL47/add"
       }
     },
     {
@@ -46,7 +43,7 @@
       "action": {
         "type": "uri",
         "label": "เบิกของ",
-        "uri": "https://liff.line.me/YOUR_LIFF_ID"
+        "uri": "https://liff.line.me/2010524167-Igy3nL47"
       }
     },
     {
@@ -59,7 +56,7 @@
       "action": {
         "type": "uri",
         "label": "ประวัติ",
-        "uri": "https://liff.line.me/YOUR_LIFF_ID/history"
+        "uri": "https://liff.line.me/2010524167-Igy3nL47/history"
       }
     },
     {
@@ -72,7 +69,7 @@
       "action": {
         "type": "uri",
         "label": "ตั้งค่า",
-        "uri": "https://liff.line.me/YOUR_LIFF_ID/settings"
+        "uri": "https://liff.line.me/2010524167-Igy3nL47/settings"
       }
     },
     {
