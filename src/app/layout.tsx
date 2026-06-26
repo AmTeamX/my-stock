@@ -1,3 +1,6 @@
+import "./globals.css";
+import LiffAuthGuard from "./components/LiffAuthGuard";
+
 export const metadata = {
   title: "MyStock — จัดการ Stock พยาบาล",
   description: "ระบบจัดการ Stock ผ่าน LINE สำหรับพยาบาล",
@@ -28,9 +31,11 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-paper">
-        <main className="min-h-screen max-w-md mx-auto bg-paper relative">
-          {children}
-        </main>
+        <LiffAuthGuard>
+          <main className="min-h-screen max-w-md mx-auto bg-paper relative">
+            {children}
+          </main>
+        </LiffAuthGuard>
       </body>
     </html>
   );

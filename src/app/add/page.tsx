@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import BottomNav from "../components/BottomNav";
 import { useRouter } from "next/navigation";
+import { useLiffUser } from "../components/useLiffUser";
 
 const CATEGORIES = [
   "เวชภัณฑ์",
@@ -17,6 +18,7 @@ const UNITS = ["กล่อง", "ชิ้น", "ขวด", "แพ็ค", "
 
 export default function AddStockPage() {
   const router = useRouter();
+  const { userName } = useLiffUser();
   const [form, setForm] = useState({
     name: "",
     quantity: 1,
@@ -56,7 +58,7 @@ export default function AddStockPage() {
       const res = await fetch("/api/stock/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, userId: userName }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "เพิ่มไม่สำเร็จ");
@@ -105,10 +107,8 @@ export default function AddStockPage() {
   return (
     <div className="pb-24">
       <div className="header-app">
-        <h1 className="text-3xl font-extrabold tracking-tight font-[family-name:var(--font-display)]">
-          เพิ่ม Stock
-        </h1>
-        <p className="text-sm text-white/75 mt-1 font-[family-name:var(--font-body)]">
+        <h1 className="text-3xl font-extrabold tracking-tight">เพิ่ม Stock</h1>
+        <p className="text-sm text-white/75 mt-1">
           เพิ่มรายการใหม่หรือเติมของที่มีอยู่แล้ว
         </p>
       </div>
@@ -117,7 +117,7 @@ export default function AddStockPage() {
         <form onSubmit={handleSubmit} className="card p-5 space-y-5">
           {/* Image */}
           <div>
-            <label className="block text-sm font-semibold text-ink-2 mb-3 font-[family-name:var(--font-body)]">
+            <label className="block text-sm font-semibold text-ink-2 mb-3">
               รูปภาพรายการ{" "}
               <span className="text-muted font-normal text-xs">
                 (ไม่บังคับ)
@@ -152,10 +152,10 @@ export default function AddStockPage() {
               ) : (
                 <div className="text-center p-6">
                   <span className="text-3xl block mb-2">📸</span>
-                  <p className="text-sm text-ink-2 font-medium font-[family-name:var(--font-body)]">
+                  <p className="text-sm text-ink-2 font-medium">
                     แตะเพื่อเลือกรูปภาพ
                   </p>
-                  <p className="text-xs text-muted mt-1 font-[family-name:var(--font-body)]">
+                  <p className="text-xs text-muted mt-1">
                     รองรับ JPG, PNG · ขนาดไม่เกิน 3MB
                   </p>
                 </div>
@@ -174,7 +174,7 @@ export default function AddStockPage() {
           <div>
             <label
               htmlFor="stock-name"
-              className="block text-sm font-semibold text-ink-2 mb-2 font-[family-name:var(--font-body)]"
+              className="block text-sm font-semibold text-ink-2 mb-2"
             >
               ชื่อรายการ <span className="text-danger">*</span>
             </label>
@@ -190,7 +190,7 @@ export default function AddStockPage() {
 
           {/* Quantity */}
           <div>
-            <label className="block text-sm font-semibold text-ink-2 mb-2 font-[family-name:var(--font-body)]">
+            <label className="block text-sm font-semibold text-ink-2 mb-2">
               จำนวนเริ่มต้น
             </label>
             <div className="flex items-center gap-2">
@@ -231,7 +231,7 @@ export default function AddStockPage() {
 
           {/* Unit */}
           <div>
-            <label className="block text-sm font-semibold text-ink-2 mb-2 font-[family-name:var(--font-body)]">
+            <label className="block text-sm font-semibold text-ink-2 mb-2">
               หน่วย
             </label>
             <div className="grid grid-cols-4 gap-2">
@@ -240,7 +240,7 @@ export default function AddStockPage() {
                   key={unit}
                   type="button"
                   onClick={() => setForm({ ...form, unit })}
-                  className={`py-2.5 rounded-md text-sm font-semibold font-[family-name:var(--font-body)] whitespace-nowrap
+                  className={`py-2.5 rounded-md text-sm font-semibold whitespace-nowrap
                     transition-colors duration-short ease-out
                     active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-focus ${
                       form.unit === unit
@@ -256,7 +256,7 @@ export default function AddStockPage() {
 
           {/* Category */}
           <div>
-            <label className="block text-sm font-semibold text-ink-2 mb-2 font-[family-name:var(--font-body)]">
+            <label className="block text-sm font-semibold text-ink-2 mb-2">
               หมวดหมู่
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -265,7 +265,7 @@ export default function AddStockPage() {
                   key={cat}
                   type="button"
                   onClick={() => setForm({ ...form, category: cat })}
-                  className={`py-2.5 px-3 rounded-md text-sm font-semibold font-[family-name:var(--font-body)] whitespace-nowrap
+                  className={`py-2.5 px-3 rounded-md text-sm font-semibold whitespace-nowrap
                     transition-colors duration-short ease-out
                     active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-focus ${
                       form.category === cat
@@ -283,7 +283,7 @@ export default function AddStockPage() {
           <div>
             <label
               htmlFor="min-threshold"
-              className="block text-sm font-semibold text-ink-2 mb-2 font-[family-name:var(--font-body)]"
+              className="block text-sm font-semibold text-ink-2 mb-2"
             >
               🔻 จำนวนขั้นต่ำก่อนแจ้งเตือนของรายการนี้
             </label>
@@ -302,11 +302,11 @@ export default function AddStockPage() {
                     })
                   }
                 />
-                <span className="text-sm text-ink-2 font-medium whitespace-nowrap font-[family-name:var(--font-body)]">
+                <span className="text-sm text-ink-2 font-medium whitespace-nowrap">
                   {form.unit}
                 </span>
               </div>
-              <p className="text-xs text-ink-2 leading-relaxed font-[family-name:var(--font-body)]">
+              <p className="text-xs text-ink-2 leading-relaxed">
                 💡 แต่ละรายการสามารถตั้งค่าจำนวนขั้นต่ำของตัวเองได้ เช่น
                 ถุงมือตั้งไว้ 10 กล่อง เข็มฉีดยาตั้งไว้ 50 ชิ้น
               </p>
@@ -325,7 +325,7 @@ export default function AddStockPage() {
           {/* Message */}
           {message && (
             <div
-              className={`p-4 rounded-lg text-sm font-medium text-center font-[family-name:var(--font-body)] ${
+              className={`p-4 rounded-lg text-sm font-medium text-center ${
                 message.startsWith("✅")
                   ? "bg-success-bg text-success border border-success/20"
                   : "bg-danger-bg text-danger border border-danger/20"

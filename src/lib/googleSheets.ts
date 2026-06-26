@@ -99,6 +99,7 @@ export async function addStock(data: {
   minThreshold: number;
   category: string;
   imageUrl?: string;
+  userId?: string;
 }): Promise<void> {
   const sheets = await getSheetsClient();
   const sheetId = getSheetId();
@@ -153,6 +154,17 @@ export async function addStock(data: {
       },
     });
   }
+
+  // Log transaction
+  await addTransaction({
+    stockName: data.name,
+    type: "add",
+    quantity: data.quantity,
+    userId: data.userId || "unknown",
+    note: found
+      ? `เติมเพิ่ม (จาก ${found.quantity} เป็น ${found.quantity + data.quantity})`
+      : "เพิ่มรายการใหม่",
+  });
 }
 
 export async function withdrawStock(data: {

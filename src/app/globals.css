@@ -1,10 +1,88 @@
-@import "../../tokens.css";
+/* Hallmark · genre: modern-minimal · macrostructure: Workbench · theme: custom (LINE green anchor)
+ * designed-as-app · design-system: design.md
+ * type: Inter (display 700 + body 400) + JetBrains Mono (outlier, ≤2 slots)
+ * motion: CSS-only · --ease-out · dur-short 220ms
+ */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* — Page-edge safety — */
+/* =============================================
+   Token System
+   ============================================= */
+
+:root {
+    --color-paper: oklch(97% 0.002 95);
+    --color-paper-2: oklch(99% 0.001 95);
+    --color-paper-3: oklch(94% 0.003 95);
+    --color-ink: oklch(22% 0.005 260);
+    --color-ink-2: oklch(48% 0.005 260);
+    --color-muted: oklch(65% 0.003 250);
+    --color-rule: oklch(90% 0.002 95);
+    --color-rule-2: oklch(84% 0.003 95);
+    --color-accent: oklch(68% 0.2 160);
+    --color-accent-hover: oklch(62% 0.2 160);
+    --color-accent-ink: oklch(99% 0 0);
+    --color-accent-bg: oklch(95% 0.03 160);
+    --color-focus: oklch(68% 0.2 160 / 0.4);
+    --color-danger: oklch(58% 0.21 25);
+    --color-danger-bg: oklch(96% 0.02 25);
+    --color-warning: oklch(72% 0.16 85);
+    --color-warning-bg: oklch(97% 0.03 85);
+    --color-success: oklch(58% 0.16 160);
+    --color-success-bg: oklch(96% 0.03 160);
+
+    --font-display:
+        "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Noto Sans Thai", sans-serif;
+    --font-body:
+        "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Noto Sans Thai", sans-serif;
+    --font-mono: "JetBrains Mono", "SF Mono", "Cascadia Code", monospace;
+
+    --text-xs: 0.6875rem;
+    --text-sm: 0.8125rem;
+    --text-md: 1rem;
+    --text-lg: 1.25rem;
+    --text-xl: 1.5rem;
+    --text-2xl: 2rem;
+    --text-3xl: 2.5rem;
+
+    --space-3xs: 0.25rem;
+    --space-2xs: 0.5rem;
+    --space-xs: 0.75rem;
+    --space-sm: 1rem;
+    --space-md: 1.5rem;
+    --space-lg: 2rem;
+    --space-xl: 3rem;
+    --space-2xl: 4.5rem;
+
+    --radius-sm: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.25rem;
+    --radius-2xl: 1.5rem;
+    --radius-full: 9999px;
+
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --dur-fast: 150ms;
+    --dur-short: 220ms;
+    --dur-med: 300ms;
+
+    --shadow-card: 0 1px 3px oklch(20% 0.005 260 / 0.06);
+    --shadow-card-raised: 0 2px 8px oklch(20% 0.005 260 / 0.08);
+    --shadow-nav: 0 -1px 3px oklch(20% 0.005 260 / 0.06);
+
+    --z-nav: 300;
+}
+
+/* =============================================
+   Base
+   ============================================= */
+
 html {
     overflow-x: clip;
 }
@@ -20,23 +98,19 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* — Tap highlight — */
 * {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* — Number input spinner hide — */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
-
 input[type="number"] {
     -moz-appearance: textfield;
 }
 
-/* — Scrollbar — */
 ::-webkit-scrollbar {
     width: 4px;
 }
@@ -48,8 +122,11 @@ input[type="number"] {
     border-radius: 2px;
 }
 
+/* =============================================
+   Components (plain CSS — no @apply with CSS vars)
+   ============================================= */
+
 @layer components {
-    /* — Primary button — solid accent fill — */
     .btn-primary {
         display: inline-flex;
         align-items: center;
@@ -57,10 +134,8 @@ input[type="number"] {
         gap: var(--space-2xs);
         background: var(--color-accent);
         color: var(--color-accent-ink);
-        font-family: var(--font-body);
         font-weight: 600;
         font-size: var(--text-sm);
-        line-height: 1;
         padding: 0.75rem 1.5rem;
         border-radius: var(--radius-md);
         border: none;
@@ -72,27 +147,22 @@ input[type="number"] {
             background-color var(--dur-short) var(--ease-out),
             transform var(--dur-fast) var(--ease-out);
     }
-
     .btn-primary:hover {
         background: var(--color-accent-hover);
     }
-
     .btn-primary:active {
         transform: translateY(1px);
     }
-
     .btn-primary:focus-visible {
         outline: 2px solid var(--color-focus);
         outline-offset: 2px;
     }
-
     .btn-primary:disabled {
         opacity: 0.45;
         cursor: not-allowed;
         transform: none;
     }
 
-    /* — Secondary button — outlined accent — */
     .btn-secondary {
         display: inline-flex;
         align-items: center;
@@ -100,10 +170,8 @@ input[type="number"] {
         gap: var(--space-2xs);
         background: transparent;
         color: var(--color-accent);
-        font-family: var(--font-body);
         font-weight: 600;
         font-size: var(--text-sm);
-        line-height: 1;
         padding: 0.6875rem 1.5rem;
         border-radius: var(--radius-md);
         border: 1.5px solid var(--color-accent);
@@ -116,28 +184,23 @@ input[type="number"] {
             color var(--dur-short) var(--ease-out),
             transform var(--dur-fast) var(--ease-out);
     }
-
     .btn-secondary:hover {
         background: var(--color-accent);
         color: var(--color-accent-ink);
     }
-
     .btn-secondary:active {
         transform: translateY(1px);
     }
-
     .btn-secondary:focus-visible {
         outline: 2px solid var(--color-focus);
         outline-offset: 2px;
     }
-
     .btn-secondary:disabled {
         opacity: 0.45;
         cursor: not-allowed;
         transform: none;
     }
 
-    /* — Danger button — */
     .btn-danger {
         display: inline-flex;
         align-items: center;
@@ -145,10 +208,8 @@ input[type="number"] {
         gap: var(--space-2xs);
         background: var(--color-danger);
         color: var(--color-accent-ink);
-        font-family: var(--font-body);
         font-weight: 600;
         font-size: var(--text-sm);
-        line-height: 1;
         padding: 0.75rem 1.5rem;
         border-radius: var(--radius-md);
         border: none;
@@ -160,23 +221,19 @@ input[type="number"] {
             opacity var(--dur-short) var(--ease-out),
             transform var(--dur-fast) var(--ease-out);
     }
-
     .btn-danger:active {
         transform: translateY(1px);
     }
-
     .btn-danger:focus-visible {
         outline: 2px solid var(--color-focus);
         outline-offset: 2px;
     }
-
     .btn-danger:disabled {
         opacity: 0.45;
         cursor: not-allowed;
         transform: none;
     }
 
-    /* — Ghost button — */
     .btn-ghost {
         display: inline-flex;
         align-items: center;
@@ -184,10 +241,8 @@ input[type="number"] {
         gap: var(--space-2xs);
         background: var(--color-paper-3);
         color: var(--color-ink-2);
-        font-family: var(--font-body);
         font-weight: 600;
         font-size: var(--text-sm);
-        line-height: 1;
         padding: 0.75rem 1.25rem;
         border-radius: var(--radius-md);
         border: none;
@@ -199,27 +254,22 @@ input[type="number"] {
             background-color var(--dur-short) var(--ease-out),
             transform var(--dur-fast) var(--ease-out);
     }
-
     .btn-ghost:hover {
         background: var(--color-rule);
     }
-
     .btn-ghost:active {
         transform: translateY(1px);
     }
-
     .btn-ghost:focus-visible {
         outline: 2px solid var(--color-focus);
         outline-offset: 2px;
     }
-
     .btn-ghost:disabled {
         opacity: 0.45;
         cursor: not-allowed;
         transform: none;
     }
 
-    /* — Card — */
     .card {
         background: var(--color-paper-2);
         border: 1px solid var(--color-rule);
@@ -228,52 +278,43 @@ input[type="number"] {
         box-shadow: var(--shadow-card);
     }
 
-    /* — Input field — */
     .input-field {
         width: 100%;
         padding: 0.75rem var(--space-sm);
         background: var(--color-paper-2);
         border: 1px solid var(--color-rule-2);
         border-radius: var(--radius-md);
-        font-family: var(--font-body);
         font-size: var(--text-md);
         color: var(--color-ink);
         outline: 2px solid transparent;
         outline-offset: 1px;
+        min-height: 44px;
         transition:
             background-color var(--dur-short) var(--ease-out),
             border-color var(--dur-short) var(--ease-out);
-        min-height: 44px;
     }
-
     .input-field::placeholder {
         color: var(--color-muted);
     }
-
     .input-field:hover {
         background: var(--color-paper);
     }
-
     .input-field:focus-visible {
         outline-color: var(--color-focus);
         border-color: var(--color-ink-2);
     }
-
     .input-field:disabled {
         opacity: 0.5;
         cursor: not-allowed;
     }
 
-    /* — Chip — */
     .chip {
         display: inline-flex;
         align-items: center;
         padding: 0.5rem 0.875rem;
         border-radius: var(--radius-full);
-        font-family: var(--font-body);
         font-size: var(--text-sm);
         font-weight: 500;
-        line-height: 1;
         cursor: pointer;
         white-space: nowrap;
         transition:
@@ -281,30 +322,25 @@ input[type="number"] {
             color var(--dur-short) var(--ease-out),
             border-color var(--dur-short) var(--ease-out);
     }
-
     .chip-active {
         background: var(--color-accent);
         color: var(--color-accent-ink);
         border: 1px solid transparent;
     }
-
     .chip-inactive {
         background: var(--color-paper-2);
         color: var(--color-ink-2);
         border: 1px solid var(--color-rule);
     }
-
     .chip-inactive:hover {
         border-color: var(--color-accent);
         color: var(--color-accent);
     }
-
     .chip:focus-visible {
         outline: 2px solid var(--color-focus);
         outline-offset: 2px;
     }
 
-    /* — Header — */
     .header-app {
         background: var(--color-accent);
         color: var(--color-accent-ink);
@@ -313,23 +349,23 @@ input[type="number"] {
         box-shadow: 0 2px 12px oklch(20% 0.005 260 / 0.1);
     }
 
-    /* — Scrollbar hide — */
     .scrollbar-hide {
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
-
     .scrollbar-hide::-webkit-scrollbar {
         display: none;
     }
 
-    /* — Safe area bottom padding — */
     .pb-safe {
         padding-bottom: env(safe-area-inset-bottom, 0px);
     }
 }
 
-/* — Reduced motion — */
+/* =============================================
+   Reduced motion
+   ============================================= */
+
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

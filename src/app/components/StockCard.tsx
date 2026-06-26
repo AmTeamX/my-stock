@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { StockItem } from "@/types";
+import { useLiffUser } from "./useLiffUser";
 
 interface StockCardProps {
   stock: StockItem;
@@ -9,6 +10,7 @@ interface StockCardProps {
 }
 
 export default function StockCard({ stock, onUpdate }: StockCardProps) {
+  const { userName } = useLiffUser();
   const [withdrawing, setWithdrawing] = useState(false);
   const [withdrawQty, setWithdrawQty] = useState(1);
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -43,7 +45,11 @@ export default function StockCard({ stock, onUpdate }: StockCardProps) {
       const res = await fetch("/api/stock/withdraw", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stockId: stock.id, quantity: withdrawQty }),
+        body: JSON.stringify({
+          stockId: stock.id,
+          quantity: withdrawQty,
+          userId: userName,
+        }),
       });
 
       const data = await res.json();
@@ -195,29 +201,25 @@ export default function StockCard({ stock, onUpdate }: StockCardProps) {
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start gap-2">
-            <h3 className="font-semibold text-ink truncate text-[15px] leading-tight font-[family-name:var(--font-body)]">
+            <h3 className="font-semibold text-ink truncate text-[15px] leading-tight">
               {stock.name}
             </h3>
             {isLow && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-danger-bg text-danger whitespace-nowrap font-[family-name:var(--font-body)]">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-danger-bg text-danger whitespace-nowrap">
                 ใกล้หมด
               </span>
             )}
           </div>
-          <p className="text-xs text-muted mt-0.5 font-[family-name:var(--font-body)]">
-            {stock.category}
-          </p>
+          <p className="text-xs text-muted mt-0.5">{stock.category}</p>
           <div className="flex items-baseline gap-1 mt-2">
             <p
-              className={`text-[1.75rem] font-extrabold leading-none tracking-tight font-[family-name:var(--font-display)] tabular-nums ${
+              className={`text-[1.75rem] font-extrabold leading-none tracking-tight tabular-nums ${
                 isLow ? "text-danger" : "text-accent"
               }`}
             >
               {stock.quantity}
             </p>
-            <p className="text-xs text-muted font-medium font-[family-name:var(--font-body)]">
-              {stock.unit}
-            </p>
+            <p className="text-xs text-muted font-medium">{stock.unit}</p>
           </div>
         </div>
       </div>
@@ -231,7 +233,7 @@ export default function StockCard({ stock, onUpdate }: StockCardProps) {
       </div>
 
       {/* Threshold info */}
-      <p className="text-[11px] text-muted mb-3 font-[family-name:var(--font-body)]">
+      <p className="text-[11px] text-muted mb-3">
         🔻 แจ้งเตือนเมื่อเหลือ &lt;{" "}
         <span className="font-semibold text-ink-2">
           {stock.minThreshold} {stock.unit}
@@ -279,9 +281,7 @@ export default function StockCard({ stock, onUpdate }: StockCardProps) {
               }
               autoFocus
             />
-            <span className="text-sm text-ink-2 font-medium font-[family-name:var(--font-body)]">
-              {stock.unit}
-            </span>
+            <span className="text-sm text-ink-2 font-medium">{stock.unit}</span>
           </div>
           {/* Quick quantity */}
           <div className="flex gap-1.5">
@@ -291,7 +291,7 @@ export default function StockCard({ stock, onUpdate }: StockCardProps) {
                 type="button"
                 disabled={qty > stock.quantity}
                 onClick={() => setWithdrawQty(qty)}
-                className={`flex-1 py-1.5 rounded-md text-xs font-semibold font-[family-name:var(--font-body)] whitespace-nowrap transition-colors duration-short ease-out focus-visible:outline-2 focus-visible:outline-focus ${
+                className={`flex-1 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap transition-colors duration-short ease-out focus-visible:outline-2 focus-visible:outline-focus ${
                   withdrawQty === qty
                     ? "bg-accent text-accent-ink"
                     : "bg-paper-2 text-ink-2 border border-rule hover:border-accent"
@@ -328,7 +328,7 @@ export default function StockCard({ stock, onUpdate }: StockCardProps) {
       {/* Message */}
       {message && (
         <div
-          className={`mt-3 p-3 rounded-lg text-xs font-medium whitespace-pre-line font-[family-name:var(--font-body)] ${
+          className={`mt-3 p-3 rounded-lg text-xs font-medium whitespace-pre-line ${
             message.startsWith("✅")
               ? "bg-success-bg text-success border border-success/20"
               : message.startsWith("⚠️")
@@ -342,7 +342,7 @@ export default function StockCard({ stock, onUpdate }: StockCardProps) {
 
       {/* Low stock warning */}
       {isLow && (
-        <div className="mt-3 p-3 bg-danger-bg rounded-lg text-xs text-danger flex items-center gap-2 border border-danger/20 font-[family-name:var(--font-body)]">
+        <div className="mt-3 p-3 bg-danger-bg rounded-lg text-xs text-danger flex items-center gap-2 border border-danger/20">
           <span aria-hidden="true">📢</span>
           <span className="font-medium">แจ้งเตือนไปยังผู้เกี่ยวข้องแล้ว</span>
         </div>

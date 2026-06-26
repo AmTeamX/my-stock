@@ -17,7 +17,6 @@ export default function SettingsPage() {
     recipientUserIds: [],
     notifyAllGroupMembers: false,
   });
-  const [newUserId, setNewUserId] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -58,40 +57,15 @@ export default function SettingsPage() {
     }
   };
 
-  const addRecipient = () => {
-    const trimmed = newUserId.trim();
-    if (!trimmed) return;
-    if (settings.recipientUserIds.includes(trimmed)) {
-      setMessage("⚠️ มี User ID นี้อยู่แล้ว");
-      return;
-    }
-    setSettings({
-      ...settings,
-      recipientUserIds: [...settings.recipientUserIds, trimmed],
-    });
-    setNewUserId("");
-  };
-
-  const removeRecipient = (userId: string) => {
-    setSettings({
-      ...settings,
-      recipientUserIds: settings.recipientUserIds.filter((id) => id !== userId),
-    });
-  };
-
   if (loading) {
     return (
       <div className="pb-24">
         <div className="header-app">
-          <h1 className="text-3xl font-extrabold tracking-tight font-[family-name:var(--font-display)]">
-            ตั้งค่า
-          </h1>
+          <h1 className="text-3xl font-extrabold tracking-tight">ตั้งค่า</h1>
         </div>
         <div className="flex flex-col items-center justify-center py-20">
           <span className="text-4xl mb-4 opacity-40">⚙️</span>
-          <p className="text-muted font-medium font-[family-name:var(--font-body)]">
-            กำลังโหลด...
-          </p>
+          <p className="text-muted font-medium">กำลังโหลด...</p>
         </div>
         <BottomNav current="settings" />
       </div>
@@ -101,23 +75,23 @@ export default function SettingsPage() {
   return (
     <div className="pb-24">
       <div className="header-app">
-        <h1 className="text-3xl font-extrabold tracking-tight font-[family-name:var(--font-display)]">
-          ตั้งค่า
-        </h1>
-        <p className="text-sm text-white/75 mt-1 font-[family-name:var(--font-body)]">
+        <h1 className="text-3xl font-extrabold tracking-tight">ตั้งค่า</h1>
+        <p className="text-sm text-white/75 mt-1">
           จัดการการแจ้งเตือนสต็อกใกล้หมด
         </p>
       </div>
 
       <div className="px-4 mt-4 space-y-4">
-        {/* Enable/Disable */}
+        {/* แจ้งเตือนฉัน */}
         <div className="card p-5 flex items-center justify-between">
           <div>
-            <p className="font-semibold text-ink font-[family-name:var(--font-body)]">
-              เปิดการแจ้งเตือน
+            <p className="font-semibold text-ink">
+              🔔 แจ้งเตือนฉันถ้าของใกล้หมด
             </p>
-            <p className="text-xs text-muted mt-0.5 font-[family-name:var(--font-body)]">
-              ส่งข้อความเมื่อของใกล้หมด
+            <p className="text-xs text-muted mt-0.5">
+              {settings.enabled
+                ? "คุณจะได้รับข้อความเมื่อสต็อกเหลือน้อยกว่าเกณฑ์ที่กำหนด"
+                : "เปิดเพื่อรับการแจ้งเตือนเมื่อของใกล้หมด"}
             </p>
           </div>
           <button
@@ -126,7 +100,7 @@ export default function SettingsPage() {
             }
             role="switch"
             aria-checked={settings.enabled}
-            aria-label="เปิดการแจ้งเตือน"
+            aria-label="แจ้งเตือนฉันถ้าของใกล้หมด"
             className={`relative w-[3.25rem] h-8 rounded-full transition-colors duration-short ease-out
               focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2 ${
                 settings.enabled ? "bg-accent" : "bg-rule"
@@ -142,12 +116,10 @@ export default function SettingsPage() {
 
         {/* Default Threshold */}
         <div className="card p-5">
-          <p className="font-semibold text-ink mb-3 font-[family-name:var(--font-body)]">
-            ค่าเริ่มต้นจำนวนขั้นต่ำสำหรับรายการใหม่
-          </p>
-          <p className="text-xs text-muted mb-3 font-[family-name:var(--font-body)]">
-            ค่านี้จะถูกใช้เมื่อเพิ่มรายการใหม่ เปลี่ยนทีหลังได้ที่หน้าเพิ่ม
-            Stock
+          <p className="font-semibold text-ink mb-1">🔻 จำนวนขั้นต่ำเริ่มต้น</p>
+          <p className="text-xs text-muted mb-4">
+            ระบบจะแจ้งเตือนเมื่อของเหลือน้อยกว่าจำนวนนี้
+            (แต่ละรายการปรับแยกได้ที่หน้าเพิ่ม Stock)
           </p>
           <input
             type="number"
@@ -162,101 +134,12 @@ export default function SettingsPage() {
             }
           />
           <div className="mt-3 p-3 bg-accent-bg rounded-lg border border-accent/10">
-            <p className="text-xs text-ink-2 leading-relaxed font-[family-name:var(--font-body)]">
+            <p className="text-xs text-ink-2 leading-relaxed">
               💡 แต่ละรายการตั้งค่าแยกกันได้ ไปที่หน้า เพิ่ม Stock
-              เพื่อกำหนดจำนวนขั้นต่ำของแต่ละรายการ
+              เพื่อกำหนดจำนวนขั้นต่ำของแต่ละรายการ เช่น ถุงมือ 10 กล่อง,
+              เข็มฉีดยา 50 ชิ้น
             </p>
           </div>
-        </div>
-
-        {/* Notify all */}
-        <div className="card p-5 flex items-center justify-between">
-          <div>
-            <p className="font-semibold text-ink font-[family-name:var(--font-body)]">
-              แจ้งเตือนทุกคนในกลุ่ม
-            </p>
-            <p className="text-xs text-muted mt-0.5 font-[family-name:var(--font-body)]">
-              ส่งข้อความไปยังทุกคนในรายชื่อด้านล่าง
-            </p>
-          </div>
-          <button
-            onClick={() =>
-              setSettings({
-                ...settings,
-                notifyAllGroupMembers: !settings.notifyAllGroupMembers,
-              })
-            }
-            role="switch"
-            aria-checked={settings.notifyAllGroupMembers}
-            aria-label="แจ้งเตือนทุกคนในกลุ่ม"
-            className={`relative w-[3.25rem] h-8 rounded-full transition-colors duration-short ease-out
-              focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2 ${
-                settings.notifyAllGroupMembers ? "bg-accent" : "bg-rule"
-              }`}
-          >
-            <span
-              className={`absolute top-[3px] w-[26px] h-[26px] bg-white rounded-full shadow-card transition-transform duration-short ease-out ${
-                settings.notifyAllGroupMembers
-                  ? "translate-x-6"
-                  : "translate-x-[3px]"
-              }`}
-            />
-          </button>
-        </div>
-
-        {/* Recipients */}
-        <div className="card p-5">
-          <p className="font-semibold text-ink mb-2 font-[family-name:var(--font-body)]">
-            ผู้รับการแจ้งเตือน
-          </p>
-          <p className="text-xs text-muted mb-4 font-[family-name:var(--font-body)]">
-            เพิ่ม LINE User ID ของคนที่ต้องการให้ได้รับข้อความแจ้งเตือน
-          </p>
-
-          <div className="flex gap-2 mb-4">
-            <input
-              type="text"
-              className="input-field flex-1 text-sm font-[family-name:var(--font-mono)]"
-              placeholder="LINE User ID (เช่น Uabc123...)"
-              value={newUserId}
-              onChange={(e) => setNewUserId(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && addRecipient()}
-            />
-            <button onClick={addRecipient} className="btn-primary text-sm">
-              เพิ่ม
-            </button>
-          </div>
-
-          {settings.recipientUserIds.length === 0 ? (
-            <div className="text-center py-6 bg-paper rounded-lg border border-dashed border-rule">
-              <p className="text-sm text-muted font-[family-name:var(--font-body)]">
-                ยังไม่มีผู้รับการแจ้งเตือน
-              </p>
-              <p className="text-xs text-muted/70 mt-1 font-[family-name:var(--font-body)]">
-                เพิ่ม User ID ด้านบน
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {settings.recipientUserIds.map((userId) => (
-                <div
-                  key={userId}
-                  className="flex items-center justify-between bg-paper rounded-lg p-3"
-                >
-                  <span className="text-sm text-ink font-[family-name:var(--font-mono)] truncate">
-                    {userId}
-                  </span>
-                  <button
-                    onClick={() => removeRecipient(userId)}
-                    className="w-8 h-8 flex items-center justify-center rounded-md text-danger hover:bg-danger-bg transition-colors duration-short ease-out flex-shrink-0 focus-visible:outline-2 focus-visible:outline-focus"
-                    aria-label={`ลบ ${userId}`}
-                  >
-                    🗑️
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Save */}
@@ -271,7 +154,7 @@ export default function SettingsPage() {
         {/* Message */}
         {message && (
           <div
-            className={`p-4 rounded-lg text-sm font-medium text-center font-[family-name:var(--font-body)] ${
+            className={`p-4 rounded-lg text-sm font-medium text-center ${
               message.startsWith("✅")
                 ? "bg-success-bg text-success border border-success/20"
                 : message.startsWith("⚠️")
@@ -282,19 +165,6 @@ export default function SettingsPage() {
             {message}
           </div>
         )}
-
-        {/* Info Card */}
-        <div className="card bg-accent-bg border border-accent/10 p-5">
-          <p className="text-sm text-ink font-semibold mb-2 font-[family-name:var(--font-body)]">
-            ℹ️ วิธีการหา LINE User ID
-          </p>
-          <ol className="text-xs text-ink-2 space-y-1.5 list-decimal list-inside leading-relaxed font-[family-name:var(--font-body)]">
-            <li>เข้า LINE Official Account Manager</li>
-            <li>ไปที่ Insights → Members</li>
-            <li>ค้นหาชื่อผู้ใช้ที่ต้องการ</li>
-            <li>คัดลอก User ID มาใส่ที่นี่</li>
-          </ol>
-        </div>
       </div>
 
       <BottomNav current="settings" />

@@ -52,12 +52,8 @@ export default function HomePage() {
       <div className="header-app">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-extrabold font-[family-name:var(--font-display)] tracking-tight">
-              MyStock
-            </h1>
-            <p className="text-sm text-white/75 mt-1 font-[family-name:var(--font-body)]">
-              จัดการคลังเวชภัณฑ์
-            </p>
+            <h1 className="text-3xl font-extrabold tracking-tight">MyStock</h1>
+            <p className="text-sm text-white/75 mt-1">จัดการคลังเวชภัณฑ์</p>
           </div>
           <span className="text-3xl opacity-80">🏥</span>
         </div>
@@ -108,16 +104,14 @@ export default function HomePage() {
         {loading && (
           <div className="flex flex-col items-center justify-center py-20">
             <span className="text-4xl mb-4 opacity-40">📦</span>
-            <p className="text-muted font-medium font-[family-name:var(--font-body)]">
-              กำลังโหลดข้อมูล...
-            </p>
+            <p className="text-muted font-medium">กำลังโหลดข้อมูล...</p>
           </div>
         )}
 
         {error && (
           <div className="card text-center py-10">
             <span className="text-3xl block mb-3">⚠️</span>
-            <p className="text-danger font-medium font-[family-name:var(--font-body)]">
+            <p className="text-danger font-medium">
               {error}
             </p>
             <button onClick={fetchStocks} className="btn-primary mt-4">
@@ -129,10 +123,10 @@ export default function HomePage() {
         {!loading && !error && filteredStocks.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20">
             <span className="text-5xl mb-4 opacity-30">📭</span>
-            <p className="text-ink-2 font-medium font-[family-name:var(--font-body)] text-lg">
+            <p className="text-ink-2 font-medium text-lg">
               {search ? `ไม่พบ "${search}"` : "ยังไม่มีรายการ"}
             </p>
-            <p className="text-muted text-sm mt-1 font-[family-name:var(--font-body)]">
+            <p className="text-muted text-sm mt-1">
               {search
                 ? "ลองเปลี่ยนคำค้นหา"
                 : "เพิ่มรายการแรกได้ที่หน้า เพิ่ม Stock"}
@@ -151,30 +145,30 @@ export default function HomePage() {
         <div className="px-4 mt-4">
           <div className="card p-5 grid grid-cols-3">
             <div className="text-center">
-              <p className="text-2xl font-extrabold font-[family-name:var(--font-display)] text-accent tabular-nums">
+              <p className="text-2xl font-extrabold text-accent tabular-nums">
                 {stocks.length}
               </p>
-              <p className="text-xs text-muted mt-1 font-[family-name:var(--font-body)]">
+              <p className="text-xs text-muted mt-1">
                 รายการทั้งหมด
               </p>
             </div>
             <div className="text-center border-x border-rule">
               <p
-                className={`text-2xl font-extrabold font-[family-name:var(--font-display)] tabular-nums ${
+                className={`text-2xl font-extrabold tabular-nums ${
                   lowStockCount > 0 ? "text-danger" : "text-muted"
                 }`}
               >
                 {lowStockCount}
               </p>
-              <p className="text-xs text-muted mt-1 font-[family-name:var(--font-body)]">
+              <p className="text-xs text-muted mt-1">
                 ใกล้หมด
               </p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-extrabold font-[family-name:var(--font-display)] text-ink-2 tabular-nums">
+              <p className="text-2xl font-extrabold text-ink-2 tabular-nums">
                 {categories.length - 1}
               </p>
-              <p className="text-xs text-muted mt-1 font-[family-name:var(--font-body)]">
+              <p className="text-xs text-muted mt-1">
                 หมวดหมู่
               </p>
             </div>

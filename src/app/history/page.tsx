@@ -39,12 +39,10 @@ export default function HistoryPage() {
   return (
     <div className="pb-24">
       <div className="header-app">
-        <h1 className="text-3xl font-extrabold tracking-tight font-[family-name:var(--font-display)]">
+        <h1 className="text-3xl font-extrabold tracking-tight">
           ประวัติการทำรายการ
         </h1>
-        <p className="text-sm text-white/75 mt-1 font-[family-name:var(--font-body)]">
-          บันทึกการเบิก-เติม Stock
-        </p>
+        <p className="text-sm text-white/75 mt-1">บันทึกการเบิก-เติม Stock</p>
       </div>
 
       {/* Stats Mini */}
@@ -54,23 +52,19 @@ export default function HistoryPage() {
             <div className="flex-1 flex items-center gap-3 bg-success-bg rounded-lg p-3">
               <span className="text-lg">➕</span>
               <div>
-                <p className="text-xl font-extrabold text-success tabular-nums font-[family-name:var(--font-display)]">
+                <p className="text-xl font-extrabold text-success tabular-nums">
                   {addCount}
                 </p>
-                <p className="text-xs text-success/70 font-medium font-[family-name:var(--font-body)]">
-                  เติม
-                </p>
+                <p className="text-xs text-success/70 font-medium">เติม</p>
               </div>
             </div>
             <div className="flex-1 flex items-center gap-3 bg-warning-bg rounded-lg p-3">
               <span className="text-lg">📤</span>
               <div>
-                <p className="text-xl font-extrabold text-warning tabular-nums font-[family-name:var(--font-display)]">
+                <p className="text-xl font-extrabold text-warning tabular-nums">
                   {withdrawCount}
                 </p>
-                <p className="text-xs text-warning/70 font-medium font-[family-name:var(--font-body)]">
-                  เบิก
-                </p>
+                <p className="text-xs text-warning/70 font-medium">เบิก</p>
               </div>
             </div>
           </div>
@@ -101,19 +95,17 @@ export default function HistoryPage() {
         {loading && (
           <div className="flex flex-col items-center justify-center py-20">
             <span className="text-4xl mb-4 opacity-40">📋</span>
-            <p className="text-muted font-medium font-[family-name:var(--font-body)]">
-              กำลังโหลด...
-            </p>
+            <p className="text-muted font-medium">กำลังโหลด...</p>
           </div>
         )}
 
         {!loading && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20">
             <span className="text-5xl mb-4 opacity-30">📭</span>
-            <p className="text-ink-2 font-medium text-lg font-[family-name:var(--font-body)]">
+            <p className="text-ink-2 font-medium text-lg">
               {filter !== "all" ? "ไม่มีประวัติในหมวดนี้" : "ยังไม่มีประวัติ"}
             </p>
-            <p className="text-muted text-sm mt-1 font-[family-name:var(--font-body)]">
+            <p className="text-muted text-sm mt-1">
               {filter !== "all"
                 ? "ลองเลือกตัวกรองอื่น"
                 : "การทำรายการจะปรากฏที่นี่"}
@@ -131,17 +123,20 @@ export default function HistoryPage() {
               {tx.type === "add" ? "➕" : "📤"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-ink truncate text-[15px] font-[family-name:var(--font-body)]">
+              <p className="font-semibold text-ink truncate text-[15px]">
                 {tx.stockName}
               </p>
-              <p className="text-xs text-muted mt-0.5 font-[family-name:var(--font-body)]">
+              <p className="text-xs text-muted mt-0.5">
                 {tx.date}
+                {tx.userId && tx.userId !== "unknown" && (
+                  <span> · {tx.userId}</span>
+                )}
                 {tx.note && <span className="text-rule-2"> · {tx.note}</span>}
               </p>
             </div>
             <div className="text-right flex-shrink-0">
               <p
-                className={`text-lg font-extrabold tracking-tight tabular-nums font-[family-name:var(--font-display)] ${
+                className={`text-lg font-extrabold tracking-tight tabular-nums ${
                   tx.type === "add" ? "text-success" : "text-danger"
                 }`}
               >
@@ -149,7 +144,7 @@ export default function HistoryPage() {
                 {tx.quantity}
               </p>
               <span
-                className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold font-[family-name:var(--font-body)] ${
+                className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold ${
                   tx.type === "add"
                     ? "bg-success-bg text-success"
                     : "bg-warning-bg text-warning"

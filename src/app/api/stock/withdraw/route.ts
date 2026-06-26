@@ -9,19 +9,19 @@ import {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { stockId, quantity, note } = body;
+    const { stockId, quantity, note, userId } = body;
 
     if (!stockId) {
       return NextResponse.json(
         { error: "กรุณาระบุรายการที่ต้องการเบิก" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!quantity || quantity <= 0) {
       return NextResponse.json(
         { error: "กรุณาระบุจำนวนที่ต้องการเบิก" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
       stockId,
       quantity: parseInt(quantity),
       note: note || "",
+      userId: userId || "unknown",
     });
 
     // Check if low stock and send notifications
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
           result.itemName,
           result.remaining,
           "หน่วย",
-          result.threshold
+          result.threshold,
         );
 
         if (settings.recipientUserIds.length > 0) {
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
     console.error("POST /api/stock/withdraw error:", error);
     return NextResponse.json(
       { error: error.message || "เกิดข้อผิดพลาดในการเบิก" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

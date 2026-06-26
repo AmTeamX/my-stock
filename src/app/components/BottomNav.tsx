@@ -42,7 +42,7 @@ export default function BottomNav({ current }: BottomNavProps) {
                   <span className="absolute top-0.5 w-6 h-[3px] bg-accent rounded-full" />
                 )}
                 <span className="text-xl leading-none">{item.icon}</span>
-                <span className="text-[10px] font-semibold font-[family-name:var(--font-body)] leading-none whitespace-nowrap">
+                <span className="text-[10px] font-semibold leading-none whitespace-nowrap">
                   {item.label}
                 </span>
               </Link>
