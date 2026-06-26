@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { StockItem } from "@/types";
 import { useLiffUser } from "./useLiffUser";
 import { useWardId } from "./useWardId";
+import { Package, Camera, AlertTriangle, Bell } from "lucide-react";
 
 interface StockCardProps {
   stock: StockItem;
@@ -173,8 +174,8 @@ export default function StockCard({ stock, onUpdate }: StockCardProps) {
                   ).nextElementSibling?.classList.remove("hidden");
                 }}
               />
-              <div className="hidden absolute inset-0 bg-paper-3 flex items-center justify-center text-2xl">
-                📦
+              <div className="hidden absolute inset-0 bg-paper-3 flex items-center justify-center">
+                <Package size={28} className="text-muted" />
               </div>
             </>
           ) : (
@@ -183,7 +184,7 @@ export default function StockCard({ stock, onUpdate }: StockCardProps) {
                 isLow ? "bg-danger-bg" : "bg-paper-3"
               }`}
             >
-              📦
+              <Package size={28} className="text-muted" />
             </div>
           )}
           {/* Upload overlay — visible on hover (idle) or always (uploading) */}
@@ -198,7 +199,7 @@ export default function StockCard({ stock, onUpdate }: StockCardProps) {
               <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
               <span className="text-white text-sm font-medium">
-                📷 เปลี่ยนรูป
+                <Camera size={16} className="text-white" />
               </span>
             )}
           </div>
@@ -356,7 +357,7 @@ export default function StockCard({ stock, onUpdate }: StockCardProps) {
       {/* Low stock warning */}
       {isLow && (
         <div className="mt-3 p-3 bg-danger-bg rounded-lg text-xs text-danger flex items-center gap-2 border border-danger/20">
-          <span aria-hidden="true">📢</span>
+          <Bell size={12} className="text-danger flex-shrink-0" />
           <span className="font-medium">แจ้งเตือนไปยังผู้เกี่ยวข้องแล้ว</span>
         </div>
       )}

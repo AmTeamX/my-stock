@@ -2,12 +2,15 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { StockItem } from "@/types";
+import { useWardId } from "./components/useWardId";
+import { useLiffUser } from "./components/useLiffUser";
 import BottomNav from "./components/BottomNav";
 import StockCard from "./components/StockCard";
-import { useWardId } from "./components/useWardId";
+import { Search, Inbox, AlertTriangle, Package, X } from "lucide-react";
 
 export default function HomePage() {
   const { wardId, wardName } = useWardId();
+  const { userName } = useLiffUser();
   const [stocks, setStocks] = useState<StockItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -15,166 +18,121 @@ export default function HomePage() {
   const [error, setError] = useState("");
 
   const fetchStocks = useCallback(async () => {
+    if (!wardId) return;
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(
-        `/api/stock?wardId=${encodeURIComponent(wardId)}`,
+      setStocks(
+        (
+          await (
+            await fetch(`/api/stock?wardId=${encodeURIComponent(wardId)}`)
+          ).json()
+        ).stocks || [],
       );
-      if (!res.ok) throw new Error("โหลดข้อมูลไม่สำเร็จ");
-      const data = await res.json();
-      setStocks(data.stocks || []);
     } catch (err: any) {
-      setError(err.message || "เกิดข้อผิดพลาด");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   }, [wardId]);
-
   useEffect(() => {
-    if (wardId) fetchStocks();
-  }, [wardId, fetchStocks]);
+    fetchStocks();
+  }, [fetchStocks]);
 
   const categories = [
     "ทั้งหมด",
     ...Array.from(new Set(stocks.map((s) => s.category).filter(Boolean))),
   ];
-
-  const filteredStocks = stocks.filter((s) => {
-    const matchSearch = s.name.toLowerCase().includes(search.toLowerCase());
-    const matchCat = category === "ทั้งหมด" || s.category === category;
-    return matchSearch && matchCat;
-  });
-
-  const lowStockCount = stocks.filter(
-    (s) => s.quantity <= s.minThreshold,
-  ).length;
+  const filtered = stocks.filter(
+    (s) =>
+      s.name.toLowerCase().includes(search.toLowerCase()) &&
+      (category === "ทั้งหมด" || s.category === category),
+  );
+  const lowCount = stocks.filter((s) => s.quantity <= s.minThreshold).length;
 
   return (
     <div className="pb-24">
-      {/* Header */}
       <div className="header-app">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight">
               {wardName || "MyStock"}
             </h1>
-            <p className="text-sm text-white/75 mt-1">จัดการคลังเวชภัณฑ์</p>
+            <p className="text-sm text-white/75 mt-0.5">เบิกของ</p>
           </div>
-          <span className="text-3xl opacity-80">🏥</span>
+          {lowCount > 0 && (
+            <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1">
+              <AlertTriangle size={12} />
+              {lowCount} ใกล้หมด
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Search */}
       <div className="px-4 -mt-4 relative z-10">
         <div className="relative">
           <input
-            type="text"
             className="input-field pl-10 pr-10 bg-white shadow-card-raised border-rule"
-            placeholder="ค้นหาชื่อรายการ..."
+            placeholder="ค้นหา..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none select-none text-base">
-            🔍
-          </span>
+          <Search
+            size={16}
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted"
+          />
           {search && (
             <button
               onClick={() => setSearch("")}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full text-muted hover:text-ink-2 focus-visible:outline-2 focus-visible:outline-focus"
-              aria-label="ล้างการค้นหา"
             >
-              ✕
+              <X size={14} />
             </button>
           )}
         </div>
       </div>
 
-      {/* Category Filter */}
       <div className="px-4 mt-4 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setCategory(cat)}
-            className={`chip whitespace-nowrap ${
-              category === cat ? "chip-active" : "chip-inactive"
-            }`}
+            className={`chip whitespace-nowrap ${category === cat ? "chip-active" : "chip-inactive"}`}
           >
             {cat}
           </button>
         ))}
       </div>
 
-      {/* Stock List */}
       <div className="px-4 mt-3 space-y-3">
         {loading && (
-          <div className="flex flex-col items-center justify-center py-20">
-            <span className="text-4xl mb-4 opacity-40">📦</span>
-            <p className="text-muted font-medium">กำลังโหลดข้อมูล...</p>
+          <div className="text-center py-20">
+            <Package size={40} className="text-muted/40 mx-auto mb-4" />
+            <p className="text-muted">กำลังโหลด...</p>
           </div>
         )}
-
         {error && (
           <div className="card text-center py-10">
-            <span className="text-3xl block mb-3">⚠️</span>
-            <p className="text-danger font-medium">{error}</p>
-            <button onClick={fetchStocks} className="btn-primary mt-4">
-              ลองใหม่อีกครั้ง
+            <p className="text-danger mb-3">{error}</p>
+            <button onClick={fetchStocks} className="btn-primary">
+              ลองใหม่
             </button>
           </div>
         )}
-
-        {!loading && !error && filteredStocks.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20">
-            <span className="text-5xl mb-4 opacity-30">📭</span>
-            <p className="text-ink-2 font-medium text-lg">
+        {!loading && !error && filtered.length === 0 && (
+          <div className="text-center py-20">
+            <Inbox size={48} className="text-muted/30 mx-auto mb-4" />
+            <p className="text-ink-2 text-lg">
               {search ? `ไม่พบ "${search}"` : "ยังไม่มีรายการ"}
-            </p>
-            <p className="text-muted text-sm mt-1">
-              {search
-                ? "ลองเปลี่ยนคำค้นหา"
-                : "เพิ่มรายการแรกได้ที่หน้า เพิ่ม Stock"}
             </p>
           </div>
         )}
-
         {!loading &&
-          filteredStocks.map((stock) => (
+          filtered.map((stock) => (
             <StockCard key={stock.id} stock={stock} onUpdate={fetchStocks} />
           ))}
       </div>
 
-      {/* Stats Summary */}
-      {!loading && stocks.length > 0 && (
-        <div className="px-4 mt-4">
-          <div className="card p-5 grid grid-cols-3">
-            <div className="text-center">
-              <p className="text-2xl font-extrabold text-accent tabular-nums">
-                {stocks.length}
-              </p>
-              <p className="text-xs text-muted mt-1">รายการทั้งหมด</p>
-            </div>
-            <div className="text-center border-x border-rule">
-              <p
-                className={`text-2xl font-extrabold tabular-nums ${
-                  lowStockCount > 0 ? "text-danger" : "text-muted"
-                }`}
-              >
-                {lowStockCount}
-              </p>
-              <p className="text-xs text-muted mt-1">ใกล้หมด</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-extrabold text-ink-2 tabular-nums">
-                {categories.length - 1}
-              </p>
-              <p className="text-xs text-muted mt-1">หมวดหมู่</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Bottom Navigation */}
       <BottomNav current="home" />
     </div>
   );

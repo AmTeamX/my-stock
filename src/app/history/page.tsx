@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import BottomNav from "../components/BottomNav";
 import { Transaction } from "@/types";
 import { useWardId } from "../components/useWardId";
+import { Plus, Minus, ClipboardList, Inbox } from "lucide-react";
 
 export default function HistoryPage() {
   const { wardId } = useWardId();
@@ -21,8 +22,7 @@ export default function HistoryPage() {
       const res = await fetch(
         `/api/stock/transactions?wardId=${encodeURIComponent(wardId)}`,
       );
-      const data = await res.json();
-      setTransactions(data.transactions || []);
+      setTransactions((await res.json()).transactions || []);
     } catch (err) {
       console.error("Failed to fetch history:", err);
     } finally {
@@ -34,7 +34,6 @@ export default function HistoryPage() {
     filter === "all"
       ? transactions
       : transactions.filter((t) => t.type === filter);
-
   const addCount = transactions.filter((t) => t.type === "add").length;
   const withdrawCount = transactions.filter(
     (t) => t.type === "withdraw",
@@ -49,12 +48,11 @@ export default function HistoryPage() {
         <p className="text-sm text-white/75 mt-1">บันทึกการเบิก-เติม Stock</p>
       </div>
 
-      {/* Stats Mini */}
       {!loading && transactions.length > 0 && (
         <div className="px-4 -mt-3 relative z-10">
           <div className="card p-4 flex gap-3">
             <div className="flex-1 flex items-center gap-3 bg-success-bg rounded-lg p-3">
-              <span className="text-lg">➕</span>
+              <Plus size={20} className="text-success" />
               <div>
                 <p className="text-xl font-extrabold text-success tabular-nums">
                   {addCount}
@@ -63,7 +61,7 @@ export default function HistoryPage() {
               </div>
             </div>
             <div className="flex-1 flex items-center gap-3 bg-warning-bg rounded-lg p-3">
-              <span className="text-lg">📤</span>
+              <Minus size={20} className="text-warning" />
               <div>
                 <p className="text-xl font-extrabold text-warning tabular-nums">
                   {withdrawCount}
@@ -75,7 +73,6 @@ export default function HistoryPage() {
         </div>
       )}
 
-      {/* Filter */}
       <div className="px-4 mt-4 flex gap-2">
         {[
           { key: "all", label: "ทั้งหมด" },
@@ -85,27 +82,23 @@ export default function HistoryPage() {
           <button
             key={f.key}
             onClick={() => setFilter(f.key as any)}
-            className={`chip whitespace-nowrap ${
-              filter === f.key ? "chip-active" : "chip-inactive"
-            }`}
+            className={`chip whitespace-nowrap ${filter === f.key ? "chip-active" : "chip-inactive"}`}
           >
             {f.label}
           </button>
         ))}
       </div>
 
-      {/* Transaction List */}
       <div className="px-4 mt-3 space-y-2">
         {loading && (
           <div className="flex flex-col items-center justify-center py-20">
-            <span className="text-4xl mb-4 opacity-40">📋</span>
+            <ClipboardList size={40} className="text-muted/40 mb-4" />
             <p className="text-muted font-medium">กำลังโหลด...</p>
           </div>
         )}
-
         {!loading && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20">
-            <span className="text-5xl mb-4 opacity-30">📭</span>
+            <Inbox size={48} className="text-muted/30 mb-4" />
             <p className="text-ink-2 font-medium text-lg">
               {filter !== "all" ? "ไม่มีประวัติในหมวดนี้" : "ยังไม่มีประวัติ"}
             </p>
@@ -116,15 +109,16 @@ export default function HistoryPage() {
             </p>
           </div>
         )}
-
         {filtered.map((tx) => (
           <div key={tx.id} className="card flex items-center gap-3">
             <div
-              className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg flex-shrink-0 ${
-                tx.type === "add" ? "bg-success-bg" : "bg-warning-bg"
-              }`}
+              className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${tx.type === "add" ? "bg-success-bg" : "bg-warning-bg"}`}
             >
-              {tx.type === "add" ? "➕" : "📤"}
+              {tx.type === "add" ? (
+                <Plus size={18} className="text-success" />
+              ) : (
+                <Minus size={18} className="text-danger" />
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-ink truncate text-[15px]">
@@ -140,19 +134,13 @@ export default function HistoryPage() {
             </div>
             <div className="text-right flex-shrink-0">
               <p
-                className={`text-lg font-extrabold tracking-tight tabular-nums ${
-                  tx.type === "add" ? "text-success" : "text-danger"
-                }`}
+                className={`text-lg font-extrabold tracking-tight tabular-nums ${tx.type === "add" ? "text-success" : "text-danger"}`}
               >
                 {tx.type === "add" ? "+" : "−"}
                 {tx.quantity}
               </p>
               <span
-                className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold ${
-                  tx.type === "add"
-                    ? "bg-success-bg text-success"
-                    : "bg-warning-bg text-warning"
-                }`}
+                className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold ${tx.type === "add" ? "bg-success-bg text-success" : "bg-warning-bg text-warning"}`}
               >
                 {tx.type === "add" ? "เติม" : "เบิก"}
               </span>

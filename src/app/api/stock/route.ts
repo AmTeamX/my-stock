@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStockList } from "@/lib/supabase";
+import { getStockList, updateStock, deleteStock } from "@/lib/supabase";
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,9 +17,39 @@ export async function GET(request: NextRequest) {
     }));
     return NextResponse.json({ stocks: mapped, total: mapped.length });
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || "เกิดข้อผิดพลาด" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const { stockId, name, quantity, unit, minThreshold, category, wardId } =
+      await request.json();
+    if (!stockId || !name)
+      return NextResponse.json({ error: "ข้อมูลไม่ครบ" }, { status: 400 });
+    await updateStock({
+      wardId: wardId || "",
+      stockId,
+      name,
+      quantity: parseInt(quantity) || 0,
+      unit: unit || "ชิ้น",
+      minThreshold: parseInt(minThreshold) || 0,
+      category: category || "อื่นๆ",
+    });
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { stockId, wardId } = await request.json();
+    if (!stockId)
+      return NextResponse.json({ error: "กรุณาระบุรายการ" }, { status: 400 });
+    await deleteStock(wardId || "", stockId);
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

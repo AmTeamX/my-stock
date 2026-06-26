@@ -207,18 +207,16 @@ export async function addStock(opts: {
     });
   } else {
     const newId = `ITEM-${Date.now()}`;
-    await client
-      .from("stocks")
-      .insert({
-        id: newId,
-        ward_id: opts.wardId,
-        name: opts.name,
-        quantity: opts.quantity,
-        unit: opts.unit,
-        min_threshold: opts.minThreshold,
-        category: opts.category,
-        image_url: opts.imageUrl || "",
-      } as any);
+    await client.from("stocks").insert({
+      id: newId,
+      ward_id: opts.wardId,
+      name: opts.name,
+      quantity: opts.quantity,
+      unit: opts.unit,
+      min_threshold: opts.minThreshold,
+      category: opts.category,
+      image_url: opts.imageUrl || "",
+    } as any);
     await addTx({
       wardId: opts.wardId,
       stockName: opts.name,
@@ -428,4 +426,34 @@ export async function initializeSheets(): Promise<void> {
   const { error } = await sb().from("stocks").select("id").limit(1);
   if (error)
     console.warn("Supabase tables not found. Run supabase-schema.sql first.");
+}
+
+export async function updateStock(opts: {
+  wardId: string;
+  stockId: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  minThreshold: number;
+  category: string;
+}): Promise<void> {
+  await sb()
+    .from("stocks")
+    .update({
+      name: opts.name,
+      quantity: opts.quantity,
+      unit: opts.unit,
+      min_threshold: opts.minThreshold,
+      category: opts.category,
+      updated_at: new Date().toISOString(),
+    } as any)
+    .eq("id", opts.stockId)
+    .eq("ward_id", opts.wardId);
+}
+
+export async function deleteStock(
+  wardId: string,
+  stockId: string,
+): Promise<void> {
+  await sb().from("stocks").delete().eq("id", stockId).eq("ward_id", wardId);
 }
