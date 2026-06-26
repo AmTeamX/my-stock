@@ -25,8 +25,14 @@ export async function POST(request: NextRequest) {
       userId: userId || "unknown",
     });
 
+    let notified = 0;
     if (result.lowStock) {
       const userIds = await getNotifyEnabledUserIds(wardId || "");
+      console.log(
+        `[notify] lowStock: ${result.itemName}, wardId: ${wardId}, notifyEnabled: ${userIds.length} users`,
+        userIds,
+      );
+
       if (userIds.length > 0) {
         const messages = buildLowStockFlexMessage(
           result.itemName,
@@ -34,18 +40,25 @@ export async function POST(request: NextRequest) {
           "หน่วย",
           result.threshold,
         );
-        await multicastMessage(userIds, messages);
+        const ok = await multicastMessage(userIds, messages);
+        if (ok) notified = userIds.length;
+        console.log(
+          `[notify] multicast result: ${ok}, sent to ${notified} users`,
+        );
       }
     }
+
     return NextResponse.json({
       success: true,
       lowStock: result.lowStock,
       itemName: result.itemName,
       remaining: result.remaining,
       threshold: result.threshold,
+      notified,
       message: `เบิก ${result.itemName} จำนวน ${quantity} สำเร็จ เหลือ ${result.remaining} หน่วย`,
     });
   } catch (error: any) {
+    console.error("POST /api/stock/withdraw error:", error);
     return NextResponse.json(
       { error: error.message || "เกิดข้อผิดพลาดในการเบิก" },
       { status: 500 },

@@ -1,6 +1,5 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-// --- Client ---
 let _sb: SupabaseClient | null = null;
 function sb(): SupabaseClient {
   if (_sb) return _sb;
@@ -12,8 +11,6 @@ function sb(): SupabaseClient {
   return _sb;
 }
 
-// ===== TYPES =====
-
 export interface Ward {
   id: string;
   name: string;
@@ -21,7 +18,6 @@ export interface Ward {
   created_by: string;
   created_at: string;
 }
-
 export interface StockRow {
   id: string;
   ward_id: string;
@@ -33,7 +29,6 @@ export interface StockRow {
   image_url: string;
   updated_at: string;
 }
-
 export interface TransactionRow {
   id: string;
   ward_id: string;
@@ -45,15 +40,13 @@ export interface TransactionRow {
   note: string;
 }
 
-// ===== WARD OPERATIONS =====
-
+// ===== WARDS =====
 export async function createWard(name: string, userId: string): Promise<Ward> {
   const code = Math.random().toString(36).substring(2, 8).toUpperCase();
   const id = `WARD-${Date.now()}`;
   await sb()
     .from("wards")
     .insert({ id, name, invite_code: code, created_by: userId } as any);
-  // Auto-join creator
   await sb()
     .from("ward_members")
     .insert({ ward_id: id, user_id: userId, display_name: "" } as any);
@@ -77,18 +70,16 @@ export async function joinWardByCode(
     .single();
   if (error || !data) throw new Error("ไม่พบวอร์ดนี้ — ตรวจสอบรหัสอีกครั้ง");
   const ward = data as any;
-  // Join if not already member
   const { data: existing } = await sb()
     .from("ward_members")
     .select("user_id")
     .eq("ward_id", ward.id)
     .eq("user_id", userId)
     .maybeSingle();
-  if (!existing) {
+  if (!existing)
     await sb()
       .from("ward_members")
       .insert({ ward_id: ward.id, user_id: userId, display_name: "" } as any);
-  }
   return {
     id: ward.id,
     name: ward.name,
@@ -148,8 +139,22 @@ export async function setDisplayName(
     .eq("user_id", userId);
 }
 
-// ===== STOCK (per ward) =====
+export async function renameWard(wardId: string, name: string): Promise<void> {
+  await sb()
+    .from("wards")
+    .update({ name } as any)
+    .eq("id", wardId);
+}
 
+export async function leaveWard(wardId: string, userId: string): Promise<void> {
+  await sb()
+    .from("ward_members")
+    .delete()
+    .eq("ward_id", wardId)
+    .eq("user_id", userId);
+}
+
+// ===== STOCK =====
 export async function getStockList(wardId: string): Promise<StockRow[]> {
   const { data, error } = await sb()
     .from("stocks")
@@ -202,16 +207,18 @@ export async function addStock(opts: {
     });
   } else {
     const newId = `ITEM-${Date.now()}`;
-    await client.from("stocks").insert({
-      id: newId,
-      ward_id: opts.wardId,
-      name: opts.name,
-      quantity: opts.quantity,
-      unit: opts.unit,
-      min_threshold: opts.minThreshold,
-      category: opts.category,
-      image_url: opts.imageUrl || "",
-    } as any);
+    await client
+      .from("stocks")
+      .insert({
+        id: newId,
+        ward_id: opts.wardId,
+        name: opts.name,
+        quantity: opts.quantity,
+        unit: opts.unit,
+        min_threshold: opts.minThreshold,
+        category: opts.category,
+        image_url: opts.imageUrl || "",
+      } as any);
     await addTx({
       wardId: opts.wardId,
       stockName: opts.name,
@@ -285,7 +292,6 @@ export async function updateStockImage(
 }
 
 // ===== TRANSACTIONS =====
-
 async function addTx(opts: {
   wardId: string;
   stockName: string;
@@ -321,28 +327,36 @@ export async function getTransactions(
   return (data || []) as any;
 }
 
-// ===== USER NOTIFICATION =====
-
+// ===== NOTIFICATIONS =====
 export async function registerUser(userId: string): Promise<void> {
-  if (!userId || userId === "unknown" || userId === "Dev") return;
-  const { data: existing } = await sb()
-    .from("user_settings")
-    .select("user_id")
-    .eq("user_id", userId)
-    .maybeSingle();
-  if (!existing)
+  if (!userId || userId === "unknown") return;
+  try {
     await sb()
       .from("user_settings")
-      .insert({ user_id: userId, notify: true } as any);
+      .upsert(
+        {
+          user_id: userId,
+          notify: true,
+          updated_at: new Date().toISOString(),
+        } as any,
+        { onConflict: "user_id" },
+      );
+  } catch {
+    /* table might not exist */
+  }
 }
 
 export async function getUserNotifySetting(userId: string): Promise<boolean> {
-  const { data } = await sb()
-    .from("user_settings")
-    .select("notify")
-    .eq("user_id", userId)
-    .maybeSingle();
-  return (data as any)?.notify ?? true;
+  try {
+    const { data } = await sb()
+      .from("user_settings")
+      .select("notify")
+      .eq("user_id", userId)
+      .maybeSingle();
+    return (data as any)?.notify ?? true;
+  } catch {
+    return true;
+  }
 }
 
 export async function setUserNotifySetting(
@@ -357,30 +371,43 @@ export async function setUserNotifySetting(
     );
 }
 
-// Get userIds of ward members who have notifications enabled
 export async function getNotifyEnabledUserIds(
   wardId: string,
 ): Promise<string[]> {
-  const members = await getWardMembers(wardId);
-  const userIds = members.map((m) => m.user_id);
-  if (userIds.length === 0) return [];
-  const { data } = await sb()
-    .from("user_settings")
-    .select("user_id")
-    .eq("notify", true)
-    .in("user_id", userIds);
-  return (data || []).map((r: any) => r.user_id);
+  // Get ward members first
+  try {
+    const members = await getWardMembers(wardId);
+    const ids = members.map((m) => m.user_id);
+    if (ids.length > 0) {
+      const { data } = await sb()
+        .from("user_settings")
+        .select("user_id")
+        .eq("notify", true)
+        .in("user_id", ids);
+      if (data && data.length > 0)
+        return (data as any[]).map((r: any) => r.user_id);
+    }
+  } catch {}
+  // Fallback: all users with notify enabled
+  try {
+    const { data } = await sb()
+      .from("user_settings")
+      .select("user_id")
+      .eq("notify", true);
+    if (data && data.length > 0)
+      return (data as any[]).map((r: any) => r.user_id);
+  } catch {}
+  return [];
 }
 
 // ===== STORAGE =====
-
 export async function uploadImageToStorage(
   base64Image: string,
   fileName: string,
 ): Promise<string> {
   const client = sb();
-  let data = base64Image;
-  let contentType = "image/png";
+  let data = base64Image,
+    contentType = "image/png";
   if (base64Image.startsWith("data:")) {
     const m = base64Image.match(/^data:([^;]+);base64,(.+)$/);
     if (m) {
@@ -388,36 +415,17 @@ export async function uploadImageToStorage(
       data = m[2];
     }
   }
-  const buffer = Buffer.from(data, "base64");
+  const buf = Buffer.from(data, "base64");
   const { error } = await client.storage
     .from("stock-images")
-    .upload(fileName, buffer, { contentType, upsert: true });
+    .upload(fileName, buf, { contentType, upsert: true });
   if (error) throw new Error(error.message);
-  const { data: pub } = client.storage
-    .from("stock-images")
-    .getPublicUrl(fileName);
-  return pub.publicUrl;
+  return client.storage.from("stock-images").getPublicUrl(fileName).data
+    .publicUrl;
 }
 
 export async function initializeSheets(): Promise<void> {
   const { error } = await sb().from("stocks").select("id").limit(1);
   if (error)
     console.warn("Supabase tables not found. Run supabase-schema.sql first.");
-}
-
-// ===== WARD MANAGEMENT EXTRA =====
-
-export async function renameWard(wardId: string, name: string): Promise<void> {
-  await sb()
-    .from("wards")
-    .update({ name } as any)
-    .eq("id", wardId);
-}
-
-export async function leaveWard(wardId: string, userId: string): Promise<void> {
-  await sb()
-    .from("ward_members")
-    .delete()
-    .eq("ward_id", wardId)
-    .eq("user_id", userId);
 }
