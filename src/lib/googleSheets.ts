@@ -63,12 +63,22 @@ export async function getStockList(): Promise<any[]> {
   const sheets = await getSheetsClient();
   const sheetId = getSheetId();
 
-  const response = await sheets.spreadsheets.values.get({
-    spreadsheetId: sheetId,
-    range: "stock!A:H",
-  });
+  let rows: any[][] = [];
 
-  const rows = response.data.values || [];
+  // Try A:H (with image column), fallback to A:G
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: "stock!A:H",
+    });
+    rows = response.data.values || [];
+  } catch {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: "stock!A:G",
+    });
+    rows = response.data.values || [];
+  }
   // Skip header row
   return rows.slice(1).map((row, index) => ({
     id: row[STOCK_COLUMNS.ID] || `${index + 2}`,
@@ -355,12 +365,14 @@ export async function initializeSheets(): Promise<void> {
   const sheetId = getSheetId();
 
   // Check and create Stock sheet with headers
+  let hasStockSheet = true;
   try {
     await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: "stock!A1",
     });
   } catch {
+    hasStockSheet = false;
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
       range: "stock!A1",
@@ -380,6 +392,24 @@ export async function initializeSheets(): Promise<void> {
         ],
       },
     });
+  }
+
+  // If sheet exists but missing column H (image), add it
+  if (hasStockSheet) {
+    try {
+      await sheets.spreadsheets.values.get({
+        spreadsheetId: sheetId,
+        range: "stock!H1",
+      });
+    } catch {
+      // Column H missing, add header
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: sheetId,
+        range: "stock!H1",
+        valueInputOption: "USER_ENTERED",
+        requestBody: { values: [["รูปภาพ"]] },
+      });
+    }
   }
 
   // Check and create Transactions sheet with headers
