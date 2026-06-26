@@ -18,9 +18,8 @@ export default function BottomNav({ current }: BottomNavProps) {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-50">
-      {/* Safe area padding for iPhone */}
-      <div className="bg-white/80 backdrop-blur-xl border-t border-gray-100 shadow-nav">
+    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-nav">
+      <div className="bg-paper-2 border-t border-rule shadow-nav">
         <div className="flex justify-around items-center h-[4.25rem] px-1 pb-safe">
           {navItems.map((item) => {
             const isActive =
@@ -32,27 +31,18 @@ export default function BottomNav({ current }: BottomNavProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 rounded-2xl
-                  transition-all duration-200 active:scale-95 ${
-                    isActive
-                      ? "text-[#06C755]"
-                      : "text-gray-400 hover:text-gray-500"
+                className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 rounded-lg min-h-[44px]
+                  transition-colors duration-short ease-out
+                  focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-[-2px]
+                  active:scale-[0.97] ${
+                    isActive ? "text-accent" : "text-muted hover:text-ink-2"
                   }`}
               >
-                {/* Active indicator dot */}
                 {isActive && (
-                  <span className="absolute -top-0.5 w-8 h-1 bg-[#06C755] rounded-full" />
+                  <span className="absolute top-0.5 w-6 h-[3px] bg-accent rounded-full" />
                 )}
-                <span
-                  className={`text-xl transition-transform duration-200 ${
-                    isActive ? "scale-110" : ""
-                  }`}
-                >
-                  {item.icon}
-                </span>
-                <span
-                  className={`text-[10px] font-semibold ${isActive ? "" : ""}`}
-                >
+                <span className="text-xl leading-none">{item.icon}</span>
+                <span className="text-[10px] font-semibold font-[family-name:var(--font-body)] leading-none whitespace-nowrap">
                   {item.label}
                 </span>
               </Link>

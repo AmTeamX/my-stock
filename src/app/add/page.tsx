@@ -33,12 +33,10 @@ export default function AddStockPage() {
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     if (file.size > 3 * 1024 * 1024) {
       setMessage("❌ รูปภาพต้องมีขนาดไม่เกิน 3MB");
       return;
     }
-
     setImageFile(file);
     const reader = new FileReader();
     reader.onload = () => setImagePreview(reader.result as string);
@@ -51,7 +49,6 @@ export default function AddStockPage() {
       setMessage("❌ กรุณากรอกชื่อรายการ");
       return;
     }
-
     setLoading(true);
     setMessage("");
 
@@ -61,7 +58,6 @@ export default function AddStockPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "เพิ่มไม่สำเร็จ");
 
@@ -70,7 +66,6 @@ export default function AddStockPage() {
         const stocksData = await stocksRes.json();
         const stocks = stocksData.stocks || [];
         const newItem = stocks.find((s: any) => s.name === form.name.trim());
-
         if (newItem?.id) {
           const reader = new FileReader();
           const base64 = await new Promise<string>((resolve, reject) => {
@@ -78,20 +73,16 @@ export default function AddStockPage() {
             reader.onerror = reject;
             reader.readAsDataURL(imageFile);
           });
-
           await fetch("/api/stock/upload-image", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              image: base64,
-              stockId: newItem.id,
-            }),
+            body: JSON.stringify({ image: base64, stockId: newItem.id }),
           });
         }
       }
 
       setMessage(
-        `✅ เพิ่ม ${form.name} จำนวน ${form.quantity} ${form.unit} สำเร็จ!`,
+        `✅ เพิ่ม ${form.name} จำนวน ${form.quantity} ${form.unit} สำเร็จ`,
       );
       setForm({
         name: "",
@@ -103,7 +94,6 @@ export default function AddStockPage() {
       setImageFile(null);
       setImagePreview("");
       if (fileInputRef.current) fileInputRef.current.value = "";
-
       setTimeout(() => router.push("/"), 1500);
     } catch (err: any) {
       setMessage(`❌ ${err.message}`);
@@ -114,36 +104,37 @@ export default function AddStockPage() {
 
   return (
     <div className="pb-24">
-      {/* Header */}
-      <div className="header-green">
-        <div className="relative z-10">
-          <h1 className="text-3xl font-extrabold tracking-tight">
-            ➕ เพิ่ม Stock
-          </h1>
-          <p className="text-sm text-white/80 mt-1">
-            เพิ่มรายการใหม่หรือเติมของที่มีอยู่แล้ว
-          </p>
-        </div>
+      <div className="header-app">
+        <h1 className="text-3xl font-extrabold tracking-tight font-[family-name:var(--font-display)]">
+          เพิ่ม Stock
+        </h1>
+        <p className="text-sm text-white/75 mt-1 font-[family-name:var(--font-body)]">
+          เพิ่มรายการใหม่หรือเติมของที่มีอยู่แล้ว
+        </p>
       </div>
 
       <div className="px-4 mt-4">
         <form onSubmit={handleSubmit} className="card p-5 space-y-5">
-          {/* รูปภาพ */}
+          {/* Image */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-              <span className="w-7 h-7 bg-purple-100 rounded-lg flex items-center justify-center text-sm">
-                📷
-              </span>
-              รูปภาพรายการ
-              <span className="text-xs text-gray-400 font-normal">
+            <label className="block text-sm font-semibold text-ink-2 mb-3 font-[family-name:var(--font-body)]">
+              รูปภาพรายการ{" "}
+              <span className="text-muted font-normal text-xs">
                 (ไม่บังคับ)
               </span>
             </label>
             <div
-              className="relative w-full h-44 rounded-2xl border-2 border-dashed border-gray-200
+              className="relative w-full h-44 rounded-lg border-2 border-dashed border-rule
                          flex items-center justify-center cursor-pointer overflow-hidden
-                         hover:border-[#06C755] hover:bg-green-50/30 transition-all duration-200 bg-gray-50"
+                         hover:border-accent transition-colors duration-short ease-out bg-paper"
               onClick={() => fileInputRef.current?.click()}
+              role="button"
+              tabIndex={0}
+              aria-label="เลือกรูปภาพ"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ")
+                  fileInputRef.current?.click();
+              }}
             >
               {imagePreview ? (
                 <>
@@ -152,22 +143,20 @@ export default function AddStockPage() {
                     alt="Preview"
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                    <span className="text-white text-sm font-medium bg-black/50 px-4 py-2 rounded-xl backdrop-blur-sm">
+                  <div className="absolute inset-0 bg-ink/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-short ease-out">
+                    <span className="text-white text-sm font-medium bg-ink/50 px-4 py-2 rounded-md">
                       แตะเพื่อเปลี่ยนรูป
                     </span>
                   </div>
                 </>
               ) : (
                 <div className="text-center p-6">
-                  <div className="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <span className="text-2xl">📸</span>
-                  </div>
-                  <p className="text-sm text-gray-500 font-medium">
+                  <span className="text-3xl block mb-2">📸</span>
+                  <p className="text-sm text-ink-2 font-medium font-[family-name:var(--font-body)]">
                     แตะเพื่อเลือกรูปภาพ
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    รองรับ JPG, PNG • ขนาดไม่เกิน 3MB
+                  <p className="text-xs text-muted mt-1 font-[family-name:var(--font-body)]">
+                    รองรับ JPG, PNG · ขนาดไม่เกิน 3MB
                   </p>
                 </div>
               )}
@@ -181,16 +170,16 @@ export default function AddStockPage() {
             />
           </div>
 
-          {/* ชื่อรายการ */}
+          {/* Name */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-              <span className="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center text-sm">
-                📝
-              </span>
-              ชื่อรายการ
-              <span className="text-red-400">*</span>
+            <label
+              htmlFor="stock-name"
+              className="block text-sm font-semibold text-ink-2 mb-2 font-[family-name:var(--font-body)]"
+            >
+              ชื่อรายการ <span className="text-danger">*</span>
             </label>
             <input
+              id="stock-name"
               type="text"
               className="input-field"
               placeholder="เช่น ถุงมือยาง, เข็มฉีดยา..."
@@ -199,12 +188,9 @@ export default function AddStockPage() {
             />
           </div>
 
-          {/* จำนวน */}
+          {/* Quantity */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-              <span className="w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center text-sm">
-                🔢
-              </span>
+            <label className="block text-sm font-semibold text-ink-2 mb-2 font-[family-name:var(--font-body)]">
               จำนวนเริ่มต้น
             </label>
             <div className="flex items-center gap-2">
@@ -213,14 +199,14 @@ export default function AddStockPage() {
                 onClick={() =>
                   setForm({ ...form, quantity: Math.max(0, form.quantity - 1) })
                 }
-                className="w-11 h-11 rounded-xl bg-gray-100 text-gray-600 font-bold text-lg
-                           active:bg-gray-200 active:scale-95 transition-all"
+                className="btn-ghost w-11 h-11 p-0 text-lg flex items-center justify-center"
+                aria-label="ลดจำนวน"
               >
                 −
               </button>
               <input
                 type="number"
-                className="input-field flex-1 text-center text-lg font-bold"
+                className="input-field flex-1 text-center text-lg font-bold tabular-nums"
                 min={0}
                 value={form.quantity}
                 onChange={(e) =>
@@ -235,20 +221,17 @@ export default function AddStockPage() {
                 onClick={() =>
                   setForm({ ...form, quantity: form.quantity + 1 })
                 }
-                className="w-11 h-11 rounded-xl bg-[#06C755] text-white font-bold text-lg
-                           active:bg-[#05A84A] active:scale-95 transition-all"
+                className="btn-primary w-11 h-11 p-0 text-lg flex items-center justify-center"
+                aria-label="เพิ่มจำนวน"
               >
                 +
               </button>
             </div>
           </div>
 
-          {/* หน่วย */}
+          {/* Unit */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-              <span className="w-7 h-7 bg-orange-100 rounded-lg flex items-center justify-center text-sm">
-                📏
-              </span>
+            <label className="block text-sm font-semibold text-ink-2 mb-2 font-[family-name:var(--font-body)]">
               หน่วย
             </label>
             <div className="grid grid-cols-4 gap-2">
@@ -257,11 +240,13 @@ export default function AddStockPage() {
                   key={unit}
                   type="button"
                   onClick={() => setForm({ ...form, unit })}
-                  className={`py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 ${
-                    form.unit === unit
-                      ? "bg-gradient-to-br from-[#06C755] to-[#05A84A] text-white shadow-sm"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
+                  className={`py-2.5 rounded-md text-sm font-semibold font-[family-name:var(--font-body)] whitespace-nowrap
+                    transition-colors duration-short ease-out
+                    active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-focus ${
+                      form.unit === unit
+                        ? "bg-accent text-accent-ink"
+                        : "bg-paper-3 text-ink-2 hover:bg-rule"
+                    }`}
                 >
                   {unit}
                 </button>
@@ -269,12 +254,9 @@ export default function AddStockPage() {
             </div>
           </div>
 
-          {/* หมวดหมู่ */}
+          {/* Category */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-              <span className="w-7 h-7 bg-indigo-100 rounded-lg flex items-center justify-center text-sm">
-                🏷️
-              </span>
+            <label className="block text-sm font-semibold text-ink-2 mb-2 font-[family-name:var(--font-body)]">
               หมวดหมู่
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -283,11 +265,13 @@ export default function AddStockPage() {
                   key={cat}
                   type="button"
                   onClick={() => setForm({ ...form, category: cat })}
-                  className={`py-2.5 px-3 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 ${
-                    form.category === cat
-                      ? "bg-gradient-to-br from-[#06C755] to-[#05A84A] text-white shadow-sm"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
+                  className={`py-2.5 px-3 rounded-md text-sm font-semibold font-[family-name:var(--font-body)] whitespace-nowrap
+                    transition-colors duration-short ease-out
+                    active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-focus ${
+                      form.category === cat
+                        ? "bg-accent text-accent-ink"
+                        : "bg-paper-3 text-ink-2 hover:bg-rule"
+                    }`}
                 >
                   {cat}
                 </button>
@@ -295,19 +279,20 @@ export default function AddStockPage() {
             </div>
           </div>
 
-          {/* จำนวนขั้นต่ำ */}
+          {/* Min threshold */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-amber-700 mb-3">
-              <span className="w-7 h-7 bg-amber-100 rounded-lg flex items-center justify-center text-sm">
-                🔻
-              </span>
-              จำนวนขั้นต่ำก่อนแจ้งเตือนของรายการนี้
+            <label
+              htmlFor="min-threshold"
+              className="block text-sm font-semibold text-ink-2 mb-2 font-[family-name:var(--font-body)]"
+            >
+              🔻 จำนวนขั้นต่ำก่อนแจ้งเตือนของรายการนี้
             </label>
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+            <div className="bg-warning-bg border border-warning/20 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-3">
                 <input
+                  id="min-threshold"
                   type="number"
-                  className="input-field bg-white border-amber-200 flex-1"
+                  className="input-field bg-white flex-1"
                   min={0}
                   value={form.minThreshold}
                   onChange={(e) =>
@@ -317,14 +302,13 @@ export default function AddStockPage() {
                     })
                   }
                 />
-                <span className="text-sm text-amber-700 font-medium whitespace-nowrap">
+                <span className="text-sm text-ink-2 font-medium whitespace-nowrap font-[family-name:var(--font-body)]">
                   {form.unit}
                 </span>
               </div>
-              <p className="text-xs text-amber-600 leading-relaxed">
+              <p className="text-xs text-ink-2 leading-relaxed font-[family-name:var(--font-body)]">
                 💡 แต่ละรายการสามารถตั้งค่าจำนวนขั้นต่ำของตัวเองได้ เช่น
                 ถุงมือตั้งไว้ 10 กล่อง เข็มฉีดยาตั้งไว้ 50 ชิ้น
-                ระบบจะแจ้งเตือนตามค่าของแต่ละรายการ
               </p>
             </div>
           </div>
@@ -335,24 +319,16 @@ export default function AddStockPage() {
             disabled={loading || !form.name.trim()}
             className="btn-primary w-full text-base"
           >
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <span className="animate-spin text-lg">⏳</span> กำลังบันทึก...
-              </span>
-            ) : (
-              <span className="flex items-center justify-center gap-2">
-                💾 บันทึกรายการ
-              </span>
-            )}
+            {loading ? "กำลังบันทึก..." : "บันทึกรายการ"}
           </button>
 
           {/* Message */}
           {message && (
             <div
-              className={`p-4 rounded-2xl text-sm font-medium text-center animate-scale-in ${
+              className={`p-4 rounded-lg text-sm font-medium text-center font-[family-name:var(--font-body)] ${
                 message.startsWith("✅")
-                  ? "bg-green-50 text-green-700 border border-green-100"
-                  : "bg-red-50 text-red-700 border border-red-100"
+                  ? "bg-success-bg text-success border border-success/20"
+                  : "bg-danger-bg text-danger border border-danger/20"
               }`}
             >
               {message}

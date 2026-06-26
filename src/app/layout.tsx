@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "MyStock - จัดการ Stock พยาบาล",
+  title: "MyStock — จัดการ Stock พยาบาล",
   description: "ระบบจัดการ Stock ผ่าน LINE สำหรับพยาบาล",
 };
 
@@ -8,6 +8,7 @@ export const viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -26,8 +27,8 @@ export default function RootLayout({
           content="black-translucent"
         />
       </head>
-      <body className="bg-[#F0F2F5]">
-        <main className="min-h-screen max-w-md mx-auto bg-[#F0F2F5] relative">
+      <body className="bg-paper">
+        <main className="min-h-screen max-w-md mx-auto bg-paper relative">
           {children}
         </main>
       </body>

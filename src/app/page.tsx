@@ -49,39 +49,38 @@ export default function HomePage() {
   return (
     <div className="pb-24">
       {/* Header */}
-      <div className="header-green">
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-1">
-            <div>
-              <h1 className="text-3xl font-extrabold tracking-tight">
-                📦 MyStock
-              </h1>
-              <p className="text-sm text-white/80 mt-1">จัดการคลังเวชภัณฑ์</p>
-            </div>
-            <div className="w-12 h-12 bg-white/15 rounded-2xl flex items-center justify-center text-2xl backdrop-blur-sm">
-              🏥
-            </div>
+      <div className="header-app">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-extrabold font-[family-name:var(--font-display)] tracking-tight">
+              MyStock
+            </h1>
+            <p className="text-sm text-white/75 mt-1 font-[family-name:var(--font-body)]">
+              จัดการคลังเวชภัณฑ์
+            </p>
           </div>
+          <span className="text-3xl opacity-80">🏥</span>
         </div>
       </div>
 
       {/* Search */}
-      <div className="px-4 -mt-5 relative z-20">
+      <div className="px-4 -mt-4 relative z-10">
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">
-            🔍
-          </span>
           <input
             type="text"
-            className="input-field pl-12 pr-4 shadow-lg shadow-black/5 bg-white border-0"
+            className="input-field pl-10 pr-10 bg-white shadow-card-raised border-rule"
             placeholder="ค้นหาชื่อรายการ..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none select-none text-base">
+            🔍
+          </span>
           {search && (
             <button
               onClick={() => setSearch("")}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full text-muted hover:text-ink-2 focus-visible:outline-2 focus-visible:outline-focus"
+              aria-label="ล้างการค้นหา"
             >
               ✕
             </button>
@@ -99,121 +98,85 @@ export default function HomePage() {
               category === cat ? "chip-active" : "chip-inactive"
             }`}
           >
-            {cat === "ทั้งหมด" ? "📋 " : ""}
             {cat}
           </button>
         ))}
       </div>
 
       {/* Stock List */}
-      <div className="px-4 mt-2 space-y-3">
+      <div className="px-4 mt-3 space-y-3">
         {loading && (
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="w-16 h-16 bg-[#06C755]/10 rounded-full flex items-center justify-center mb-4 animate-pulse-soft">
-              <span className="text-3xl">📦</span>
-            </div>
-            <p className="text-gray-400 font-medium">กำลังโหลดข้อมูล...</p>
-            <div className="flex gap-1.5 mt-3">
-              <div
-                className="w-2 h-2 rounded-full bg-[#06C755] animate-bounce"
-                style={{ animationDelay: "0ms" }}
-              ></div>
-              <div
-                className="w-2 h-2 rounded-full bg-[#06C755] animate-bounce"
-                style={{ animationDelay: "150ms" }}
-              ></div>
-              <div
-                className="w-2 h-2 rounded-full bg-[#06C755] animate-bounce"
-                style={{ animationDelay: "300ms" }}
-              ></div>
-            </div>
+          <div className="flex flex-col items-center justify-center py-20">
+            <span className="text-4xl mb-4 opacity-40">📦</span>
+            <p className="text-muted font-medium font-[family-name:var(--font-body)]">
+              กำลังโหลดข้อมูล...
+            </p>
           </div>
         )}
 
         {error && (
           <div className="card text-center py-10">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-3xl">⚠️</span>
-            </div>
-            <p className="text-red-500 font-medium">{error}</p>
-            <button
-              onClick={fetchStocks}
-              className="btn-primary mt-4 text-sm py-2.5 px-6"
-            >
-              🔄 ลองใหม่อีกครั้ง
+            <span className="text-3xl block mb-3">⚠️</span>
+            <p className="text-danger font-medium font-[family-name:var(--font-body)]">
+              {error}
+            </p>
+            <button onClick={fetchStocks} className="btn-primary mt-4">
+              ลองใหม่อีกครั้ง
             </button>
           </div>
         )}
 
         {!loading && !error && filteredStocks.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <span className="text-4xl">📭</span>
-            </div>
-            <p className="text-gray-500 font-medium text-lg">ไม่พบรายการ</p>
-            {search && (
-              <p className="text-gray-400 text-sm mt-1">
-                ไม่พบ "{search}" ลองเปลี่ยนคำค้นหา
-              </p>
-            )}
-            {!search && (
-              <p className="text-gray-400 text-sm mt-1">
-                ยังไม่มีรายการ — เพิ่มรายการแรกเลย!
-              </p>
-            )}
+          <div className="flex flex-col items-center justify-center py-20">
+            <span className="text-5xl mb-4 opacity-30">📭</span>
+            <p className="text-ink-2 font-medium font-[family-name:var(--font-body)] text-lg">
+              {search ? `ไม่พบ "${search}"` : "ยังไม่มีรายการ"}
+            </p>
+            <p className="text-muted text-sm mt-1 font-[family-name:var(--font-body)]">
+              {search
+                ? "ลองเปลี่ยนคำค้นหา"
+                : "เพิ่มรายการแรกได้ที่หน้า เพิ่ม Stock"}
+            </p>
           </div>
         )}
 
         {!loading &&
-          filteredStocks.map((stock, index) => (
-            <div
-              key={stock.id}
-              className="animate-fade-in"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <StockCard stock={stock} onUpdate={fetchStocks} />
-            </div>
+          filteredStocks.map((stock) => (
+            <StockCard key={stock.id} stock={stock} onUpdate={fetchStocks} />
           ))}
       </div>
 
       {/* Stats Summary */}
       {!loading && stocks.length > 0 && (
         <div className="px-4 mt-4">
-          <div className="card p-5 flex items-center justify-between">
-            <div className="text-center flex-1">
-              <div className="w-10 h-10 bg-[#06C755]/10 rounded-xl flex items-center justify-center mx-auto mb-2">
-                <span className="text-lg">📦</span>
-              </div>
-              <p className="text-2xl font-extrabold text-[#06C755]">
+          <div className="card p-5 grid grid-cols-3">
+            <div className="text-center">
+              <p className="text-2xl font-extrabold font-[family-name:var(--font-display)] text-accent tabular-nums">
                 {stocks.length}
               </p>
-              <p className="text-xs text-gray-400 font-medium">รายการทั้งหมด</p>
+              <p className="text-xs text-muted mt-1 font-[family-name:var(--font-body)]">
+                รายการทั้งหมด
+              </p>
             </div>
-            <div className="w-px h-12 bg-gray-100" />
-            <div className="text-center flex-1">
-              <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2 ${
-                  lowStockCount > 0 ? "bg-red-50" : "bg-gray-50"
-                }`}
-              >
-                <span className="text-lg">⚠️</span>
-              </div>
+            <div className="text-center border-x border-rule">
               <p
-                className={`text-2xl font-extrabold ${lowStockCount > 0 ? "text-[#FF6B6B]" : "text-gray-400"}`}
+                className={`text-2xl font-extrabold font-[family-name:var(--font-display)] tabular-nums ${
+                  lowStockCount > 0 ? "text-danger" : "text-muted"
+                }`}
               >
                 {lowStockCount}
               </p>
-              <p className="text-xs text-gray-400 font-medium">ใกล้หมด</p>
+              <p className="text-xs text-muted mt-1 font-[family-name:var(--font-body)]">
+                ใกล้หมด
+              </p>
             </div>
-            <div className="w-px h-12 bg-gray-100" />
-            <div className="text-center flex-1">
-              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-2">
-                <span className="text-lg">🏷️</span>
-              </div>
-              <p className="text-2xl font-extrabold text-blue-500">
+            <div className="text-center">
+              <p className="text-2xl font-extrabold font-[family-name:var(--font-display)] text-ink-2 tabular-nums">
                 {categories.length - 1}
               </p>
-              <p className="text-xs text-gray-400 font-medium">หมวดหมู่</p>
+              <p className="text-xs text-muted mt-1 font-[family-name:var(--font-body)]">
+                หมวดหมู่
+              </p>
             </div>
           </div>
         </div>

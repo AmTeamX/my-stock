@@ -42,17 +42,14 @@ export default function SettingsPage() {
   const handleSave = async () => {
     setSaving(true);
     setMessage("");
-
     try {
       const res = await fetch("/api/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(settings),
       });
-
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "บันทึกไม่สำเร็จ");
-
       setMessage("✅ บันทึกการตั้งค่าสำเร็จ");
     } catch (err: any) {
       setMessage(`❌ ${err.message}`);
@@ -85,18 +82,16 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="pb-24">
-        <div className="header-green">
-          <div className="relative z-10">
-            <h1 className="text-3xl font-extrabold tracking-tight">
-              ⚙️ ตั้งค่า
-            </h1>
-          </div>
+        <div className="header-app">
+          <h1 className="text-3xl font-extrabold tracking-tight font-[family-name:var(--font-display)]">
+            ตั้งค่า
+          </h1>
         </div>
-        <div className="flex flex-col items-center justify-center py-16">
-          <div className="w-16 h-16 bg-[#06C755]/10 rounded-full flex items-center justify-center mb-4 animate-pulse-soft">
-            <span className="text-3xl">⚙️</span>
-          </div>
-          <p className="text-gray-400 font-medium">กำลังโหลด...</p>
+        <div className="flex flex-col items-center justify-center py-20">
+          <span className="text-4xl mb-4 opacity-40">⚙️</span>
+          <p className="text-muted font-medium font-[family-name:var(--font-body)]">
+            กำลังโหลด...
+          </p>
         </div>
         <BottomNav current="settings" />
       </div>
@@ -105,42 +100,40 @@ export default function SettingsPage() {
 
   return (
     <div className="pb-24">
-      {/* Header */}
-      <div className="header-green">
-        <div className="relative z-10">
-          <h1 className="text-3xl font-extrabold tracking-tight">⚙️ ตั้งค่า</h1>
-          <p className="text-sm text-white/80 mt-1">
-            จัดการการแจ้งเตือนสต็อกใกล้หมด
-          </p>
-        </div>
+      <div className="header-app">
+        <h1 className="text-3xl font-extrabold tracking-tight font-[family-name:var(--font-display)]">
+          ตั้งค่า
+        </h1>
+        <p className="text-sm text-white/75 mt-1 font-[family-name:var(--font-body)]">
+          จัดการการแจ้งเตือนสต็อกใกล้หมด
+        </p>
       </div>
 
       <div className="px-4 mt-4 space-y-4">
         {/* Enable/Disable */}
         <div className="card p-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 bg-[#06C755]/10 rounded-2xl flex items-center justify-center text-xl">
-              🔔
-            </div>
-            <div>
-              <p className="font-semibold text-gray-800">เปิดการแจ้งเตือน</p>
-              <p className="text-xs text-gray-400 mt-0.5">
-                ส่งข้อความเมื่อของใกล้หมด
-              </p>
-            </div>
+          <div>
+            <p className="font-semibold text-ink font-[family-name:var(--font-body)]">
+              เปิดการแจ้งเตือน
+            </p>
+            <p className="text-xs text-muted mt-0.5 font-[family-name:var(--font-body)]">
+              ส่งข้อความเมื่อของใกล้หมด
+            </p>
           </div>
           <button
             onClick={() =>
               setSettings({ ...settings, enabled: !settings.enabled })
             }
-            className={`relative w-[3.25rem] h-8 rounded-full transition-all duration-300 ${
-              settings.enabled
-                ? "bg-gradient-to-r from-[#06C755] to-[#05A84A]"
-                : "bg-gray-300"
-            }`}
+            role="switch"
+            aria-checked={settings.enabled}
+            aria-label="เปิดการแจ้งเตือน"
+            className={`relative w-[3.25rem] h-8 rounded-full transition-colors duration-short ease-out
+              focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2 ${
+                settings.enabled ? "bg-accent" : "bg-rule"
+              }`}
           >
-            <div
-              className={`absolute top-[3px] w-[26px] h-[26px] bg-white rounded-full shadow-md transition-all duration-300 ${
+            <span
+              className={`absolute top-[3px] w-[26px] h-[26px] bg-white rounded-full shadow-card transition-transform duration-short ease-out ${
                 settings.enabled ? "translate-x-6" : "translate-x-[3px]"
               }`}
             />
@@ -149,53 +142,42 @@ export default function SettingsPage() {
 
         {/* Default Threshold */}
         <div className="card p-5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-11 h-11 bg-amber-50 rounded-2xl flex items-center justify-center text-xl">
-              🔻
-            </div>
-            <div>
-              <p className="font-semibold text-gray-800">
-                ค่าเริ่มต้นจำนวนขั้นต่ำ
-              </p>
-              <p className="text-xs text-gray-400 mt-0.5">สำหรับรายการใหม่</p>
-            </div>
-          </div>
-          <div className="bg-gray-50 rounded-2xl p-4">
-            <input
-              type="number"
-              className="input-field bg-white"
-              min={1}
-              value={settings.threshold}
-              onChange={(e) =>
-                setSettings({
-                  ...settings,
-                  threshold: Math.max(1, parseInt(e.target.value) || 1),
-                })
-              }
-            />
-            <div className="mt-3 p-3 bg-blue-50 rounded-xl border border-blue-100">
-              <p className="text-xs text-blue-700 leading-relaxed">
-                💡 <strong>แต่ละรายการตั้งค่าแยกกันได้!</strong> ไปที่หน้า
-                &quot;เพิ่ม Stock&quot; เพื่อกำหนดจำนวนขั้นต่ำของแต่ละรายการ
-              </p>
-            </div>
+          <p className="font-semibold text-ink mb-3 font-[family-name:var(--font-body)]">
+            ค่าเริ่มต้นจำนวนขั้นต่ำสำหรับรายการใหม่
+          </p>
+          <p className="text-xs text-muted mb-3 font-[family-name:var(--font-body)]">
+            ค่านี้จะถูกใช้เมื่อเพิ่มรายการใหม่ เปลี่ยนทีหลังได้ที่หน้าเพิ่ม
+            Stock
+          </p>
+          <input
+            type="number"
+            className="input-field"
+            min={1}
+            value={settings.threshold}
+            onChange={(e) =>
+              setSettings({
+                ...settings,
+                threshold: Math.max(1, parseInt(e.target.value) || 1),
+              })
+            }
+          />
+          <div className="mt-3 p-3 bg-accent-bg rounded-lg border border-accent/10">
+            <p className="text-xs text-ink-2 leading-relaxed font-[family-name:var(--font-body)]">
+              💡 แต่ละรายการตั้งค่าแยกกันได้ ไปที่หน้า เพิ่ม Stock
+              เพื่อกำหนดจำนวนขั้นต่ำของแต่ละรายการ
+            </p>
           </div>
         </div>
 
         {/* Notify all */}
         <div className="card p-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 bg-indigo-50 rounded-2xl flex items-center justify-center text-xl">
-              👥
-            </div>
-            <div>
-              <p className="font-semibold text-gray-800">
-                แจ้งเตือนทุกคนในกลุ่ม
-              </p>
-              <p className="text-xs text-gray-400 mt-0.5">
-                ส่งข้อความไปยังทุกคนในรายชื่อด้านล่าง
-              </p>
-            </div>
+          <div>
+            <p className="font-semibold text-ink font-[family-name:var(--font-body)]">
+              แจ้งเตือนทุกคนในกลุ่ม
+            </p>
+            <p className="text-xs text-muted mt-0.5 font-[family-name:var(--font-body)]">
+              ส่งข้อความไปยังทุกคนในรายชื่อด้านล่าง
+            </p>
           </div>
           <button
             onClick={() =>
@@ -204,14 +186,16 @@ export default function SettingsPage() {
                 notifyAllGroupMembers: !settings.notifyAllGroupMembers,
               })
             }
-            className={`relative w-[3.25rem] h-8 rounded-full transition-all duration-300 ${
-              settings.notifyAllGroupMembers
-                ? "bg-gradient-to-r from-[#06C755] to-[#05A84A]"
-                : "bg-gray-300"
-            }`}
+            role="switch"
+            aria-checked={settings.notifyAllGroupMembers}
+            aria-label="แจ้งเตือนทุกคนในกลุ่ม"
+            className={`relative w-[3.25rem] h-8 rounded-full transition-colors duration-short ease-out
+              focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2 ${
+                settings.notifyAllGroupMembers ? "bg-accent" : "bg-rule"
+              }`}
           >
-            <div
-              className={`absolute top-[3px] w-[26px] h-[26px] bg-white rounded-full shadow-md transition-all duration-300 ${
+            <span
+              className={`absolute top-[3px] w-[26px] h-[26px] bg-white rounded-full shadow-card transition-transform duration-short ease-out ${
                 settings.notifyAllGroupMembers
                   ? "translate-x-6"
                   : "translate-x-[3px]"
@@ -222,61 +206,50 @@ export default function SettingsPage() {
 
         {/* Recipients */}
         <div className="card p-5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-11 h-11 bg-purple-50 rounded-2xl flex items-center justify-center text-xl">
-              👤
-            </div>
-            <div>
-              <p className="font-semibold text-gray-800">ผู้รับการแจ้งเตือน</p>
-              <p className="text-xs text-gray-400 mt-0.5">เพิ่ม LINE User ID</p>
-            </div>
-          </div>
+          <p className="font-semibold text-ink mb-2 font-[family-name:var(--font-body)]">
+            ผู้รับการแจ้งเตือน
+          </p>
+          <p className="text-xs text-muted mb-4 font-[family-name:var(--font-body)]">
+            เพิ่ม LINE User ID ของคนที่ต้องการให้ได้รับข้อความแจ้งเตือน
+          </p>
 
-          {/* Add recipient input */}
           <div className="flex gap-2 mb-4">
             <input
               type="text"
-              className="input-field flex-1 text-sm"
+              className="input-field flex-1 text-sm font-[family-name:var(--font-mono)]"
               placeholder="LINE User ID (เช่น Uabc123...)"
               value={newUserId}
               onChange={(e) => setNewUserId(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addRecipient()}
             />
-            <button
-              onClick={addRecipient}
-              className="btn-primary text-sm py-2.5 px-5"
-            >
+            <button onClick={addRecipient} className="btn-primary text-sm">
               เพิ่ม
             </button>
           </div>
 
-          {/* Recipient list */}
           {settings.recipientUserIds.length === 0 ? (
-            <div className="text-center py-6 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-              <p className="text-sm text-gray-400">
+            <div className="text-center py-6 bg-paper rounded-lg border border-dashed border-rule">
+              <p className="text-sm text-muted font-[family-name:var(--font-body)]">
                 ยังไม่มีผู้รับการแจ้งเตือน
               </p>
-              <p className="text-xs text-gray-300 mt-1">เพิ่ม User ID ด้านบน</p>
+              <p className="text-xs text-muted/70 mt-1 font-[family-name:var(--font-body)]">
+                เพิ่ม User ID ด้านบน
+              </p>
             </div>
           ) : (
             <div className="space-y-2">
-              {settings.recipientUserIds.map((userId, idx) => (
+              {settings.recipientUserIds.map((userId) => (
                 <div
                   key={userId}
-                  className="flex items-center justify-between bg-gray-50 rounded-xl p-3 animate-fade-in"
-                  style={{ animationDelay: `${idx * 30}ms` }}
+                  className="flex items-center justify-between bg-paper rounded-lg p-3"
                 >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center text-sm flex-shrink-0">
-                      👤
-                    </div>
-                    <span className="text-sm text-gray-700 font-mono truncate">
-                      {userId}
-                    </span>
-                  </div>
+                  <span className="text-sm text-ink font-[family-name:var(--font-mono)] truncate">
+                    {userId}
+                  </span>
                   <button
                     onClick={() => removeRecipient(userId)}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg text-red-400 hover:bg-red-50 hover:text-red-500 transition-colors flex-shrink-0"
+                    className="w-8 h-8 flex items-center justify-center rounded-md text-danger hover:bg-danger-bg transition-colors duration-short ease-out flex-shrink-0 focus-visible:outline-2 focus-visible:outline-focus"
+                    aria-label={`ลบ ${userId}`}
                   >
                     🗑️
                   </button>
@@ -286,30 +259,24 @@ export default function SettingsPage() {
           )}
         </div>
 
-        {/* Save button */}
+        {/* Save */}
         <button
           onClick={handleSave}
           disabled={saving}
           className="btn-primary w-full text-base"
         >
-          {saving ? (
-            <span className="flex items-center justify-center gap-2">
-              <span className="animate-spin text-lg">⏳</span> กำลังบันทึก...
-            </span>
-          ) : (
-            "💾 บันทึกการตั้งค่า"
-          )}
+          {saving ? "กำลังบันทึก..." : "บันทึกการตั้งค่า"}
         </button>
 
         {/* Message */}
         {message && (
           <div
-            className={`p-4 rounded-2xl text-sm font-medium text-center animate-scale-in ${
+            className={`p-4 rounded-lg text-sm font-medium text-center font-[family-name:var(--font-body)] ${
               message.startsWith("✅")
-                ? "bg-green-50 text-green-700 border border-green-100"
+                ? "bg-success-bg text-success border border-success/20"
                 : message.startsWith("⚠️")
-                  ? "bg-yellow-50 text-yellow-700 border border-yellow-100"
-                  : "bg-red-50 text-red-700 border border-red-100"
+                  ? "bg-warning-bg text-warning border border-warning/20"
+                  : "bg-danger-bg text-danger border border-danger/20"
             }`}
           >
             {message}
@@ -317,11 +284,11 @@ export default function SettingsPage() {
         )}
 
         {/* Info Card */}
-        <div className="card bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 p-5">
-          <p className="text-sm text-blue-700 font-semibold mb-2 flex items-center gap-2">
-            <span>ℹ️</span> วิธีการหา LINE User ID
+        <div className="card bg-accent-bg border border-accent/10 p-5">
+          <p className="text-sm text-ink font-semibold mb-2 font-[family-name:var(--font-body)]">
+            ℹ️ วิธีการหา LINE User ID
           </p>
-          <ol className="text-xs text-blue-600 space-y-1.5 list-decimal list-inside leading-relaxed">
+          <ol className="text-xs text-ink-2 space-y-1.5 list-decimal list-inside leading-relaxed font-[family-name:var(--font-body)]">
             <li>เข้า LINE Official Account Manager</li>
             <li>ไปที่ Insights → Members</li>
             <li>ค้นหาชื่อผู้ใช้ที่ต้องการ</li>
