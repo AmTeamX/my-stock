@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withdrawStock, getSettings } from "@/lib/googleSheets";
+import { withdrawStock, getSettings } from "@/lib/supabase";
 import {
   multicastMessage,
   pushMessage,
@@ -32,27 +32,21 @@ export async function POST(request: NextRequest) {
       userId: userId || "unknown",
     });
 
-    // Check if low stock and send notifications
+    // Notifications
     if (result.lowStock) {
       const settings = await getSettings();
-
-      if (settings.enabled) {
+      if (settings.enabled && settings.recipientUserIds.length > 0) {
         const messages = buildLowStockFlexMessage(
           result.itemName,
           result.remaining,
           "หน่วย",
           result.threshold,
         );
-
-        if (settings.recipientUserIds.length > 0) {
-          // Send to specific recipients
-          if (settings.notifyAllGroupMembers) {
-            await multicastMessage(settings.recipientUserIds, messages);
-          } else {
-            // Send to each recipient individually
-            for (const userId of settings.recipientUserIds) {
-              await pushMessage(userId, messages);
-            }
+        if (settings.notifyAllGroupMembers) {
+          await multicastMessage(settings.recipientUserIds, messages);
+        } else {
+          for (const uid of settings.recipientUserIds) {
+            await pushMessage(uid, messages);
           }
         }
       }

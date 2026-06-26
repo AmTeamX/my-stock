@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { uploadImageToDrive } from "@/lib/googleDrive";
-import { updateStockImage, getStockList } from "@/lib/googleSheets";
+import {
+  uploadImageToStorage,
+  updateStockImage,
+  getStockList,
+} from "@/lib/supabase";
 
-// Increase body size limit for image uploads (max 5MB)
 export const maxDuration = 30;
 
 export async function POST(request: NextRequest) {
@@ -11,34 +13,27 @@ export async function POST(request: NextRequest) {
     const { image, stockId } = body;
 
     if (!image) {
-      return NextResponse.json(
-        { error: "กรุณาเลือกรูปภาพ" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "กรุณาเลือกรูปภาพ" }, { status: 400 });
     }
-
     if (!stockId) {
       return NextResponse.json(
         { error: "กรุณาระบุรายการ Stock" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // Validate stockId exists
+    // Validate stock exists
     const stocks = await getStockList();
     const stock = stocks.find((s) => s.id === stockId);
     if (!stock) {
       return NextResponse.json(
         { error: "ไม่พบรายการ Stock นี้" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    // Upload to Google Drive
-    const fileName = `mystock_${stockId}_${Date.now()}.jpg`;
-    const imageUrl = await uploadImageToDrive(image, fileName);
-
-    // Update the stock item with the image URL in Google Sheets
+    const fileName = `${stockId}/${Date.now()}.jpg`;
+    const imageUrl = await uploadImageToStorage(image, fileName);
     await updateStockImage(stockId, imageUrl);
 
     return NextResponse.json({
@@ -50,7 +45,7 @@ export async function POST(request: NextRequest) {
     console.error("Upload image error:", error);
     return NextResponse.json(
       { error: error.message || "เกิดข้อผิดพลาดในการอัปโหลด" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
