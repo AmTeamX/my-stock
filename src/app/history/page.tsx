@@ -31,31 +31,70 @@ export default function HistoryPage() {
       ? transactions
       : transactions.filter((t) => t.type === filter);
 
+  const addCount = transactions.filter((t) => t.type === "add").length;
+  const withdrawCount = transactions.filter(
+    (t) => t.type === "withdraw",
+  ).length;
+
   return (
     <div className="pb-24">
       {/* Header */}
-      <div className="bg-[#06C755] text-white px-5 pt-12 pb-6 rounded-b-3xl shadow-md">
-        <h1 className="text-2xl font-bold mb-1">📋 ประวัติการทำรายการ</h1>
-        <p className="text-sm opacity-90">บันทึกการเบิก-เพิ่ม Stock</p>
+      <div className="header-green">
+        <div className="relative z-10">
+          <h1 className="text-3xl font-extrabold tracking-tight">
+            📋 ประวัติการทำรายการ
+          </h1>
+          <p className="text-sm text-white/80 mt-1">
+            บันทึกการเบิก-เพิ่ม Stock
+          </p>
+        </div>
       </div>
+
+      {/* Stats Mini */}
+      {!loading && transactions.length > 0 && (
+        <div className="px-4 -mt-3 relative z-10">
+          <div className="card p-4 flex items-center gap-3">
+            <div className="flex-1 flex items-center gap-3 bg-green-50 rounded-xl p-3">
+              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center text-lg">
+                ➕
+              </div>
+              <div>
+                <p className="text-xl font-extrabold text-green-600">
+                  {addCount}
+                </p>
+                <p className="text-xs text-green-500 font-medium">เติม</p>
+              </div>
+            </div>
+            <div className="flex-1 flex items-center gap-3 bg-orange-50 rounded-xl p-3">
+              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center text-lg">
+                📤
+              </div>
+              <div>
+                <p className="text-xl font-extrabold text-orange-600">
+                  {withdrawCount}
+                </p>
+                <p className="text-xs text-orange-500 font-medium">เบิก</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Filter */}
       <div className="px-4 mt-4 flex gap-2">
         {[
-          { key: "all", label: "ทั้งหมด" },
-          { key: "add", label: "➕ เพิ่ม" },
-          { key: "withdraw", label: "📤 เบิก" },
+          { key: "all", label: "ทั้งหมด", icon: "📋" },
+          { key: "add", label: "เติม", icon: "➕" },
+          { key: "withdraw", label: "เบิก", icon: "📤" },
         ].map((f) => (
           <button
             key={f.key}
             onClick={() => setFilter(f.key as any)}
-            className={`chip transition-colors ${
-              filter === f.key
-                ? "bg-[#06C755] text-white"
-                : "bg-white text-gray-600 border border-gray-200"
+            className={`chip whitespace-nowrap ${
+              filter === f.key ? "chip-active" : "chip-inactive"
             }`}
           >
-            {f.label}
+            {f.icon} {f.label}
           </button>
         ))}
       </div>
@@ -63,51 +102,72 @@ export default function HistoryPage() {
       {/* Transaction List */}
       <div className="px-4 mt-3 space-y-2">
         {loading && (
-          <div className="text-center py-12 text-gray-400">
-            <div className="animate-pulse text-4xl mb-2">📋</div>
-            <p>กำลังโหลด...</p>
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 bg-[#06C755]/10 rounded-full flex items-center justify-center mb-4 animate-pulse-soft">
+              <span className="text-3xl">📋</span>
+            </div>
+            <p className="text-gray-400 font-medium">กำลังโหลด...</p>
           </div>
         )}
 
         {!loading && filtered.length === 0 && (
-          <div className="text-center py-12 text-gray-400">
-            <div className="text-5xl mb-3">📭</div>
-            <p className="text-lg">ยังไม่มีประวัติ</p>
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <span className="text-4xl">📭</span>
+            </div>
+            <p className="text-gray-500 font-medium text-lg">
+              {filter !== "all" ? "ไม่มีประวัติในหมวดนี้" : "ยังไม่มีประวัติ"}
+            </p>
+            <p className="text-gray-400 text-sm mt-1">
+              {filter !== "all"
+                ? "ลองเลือกตัวกรองอื่น"
+                : "การทำรายการจะปรากฏที่นี่"}
+            </p>
           </div>
         )}
 
-        {filtered.map((tx) => (
+        {filtered.map((tx, index) => (
           <div
             key={tx.id}
-            className="card flex items-center gap-3 animate-slide-up"
+            className="card-hover flex items-center gap-3 animate-fade-in"
+            style={{ animationDelay: `${index * 40}ms` }}
           >
             <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center text-lg
-                ${tx.type === "add" ? "bg-green-100" : "bg-orange-100"}`}
+              className={`w-11 h-11 rounded-2xl flex items-center justify-center text-lg flex-shrink-0 shadow-sm ${
+                tx.type === "add"
+                  ? "bg-gradient-to-br from-green-100 to-green-200"
+                  : "bg-gradient-to-br from-orange-100 to-orange-200"
+              }`}
             >
               {tx.type === "add" ? "➕" : "📤"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-800 truncate">
+              <p className="font-semibold text-gray-800 truncate text-[15px]">
                 {tx.stockName}
               </p>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-400 mt-0.5">
                 {tx.date}
-                {tx.note && ` • ${tx.note}`}
+                {tx.note && <span className="text-gray-300"> • {tx.note}</span>}
               </p>
             </div>
-            <div className="text-right">
+            <div className="text-right flex-shrink-0">
               <p
-                className={`font-bold ${
+                className={`text-lg font-extrabold tracking-tight ${
                   tx.type === "add" ? "text-green-500" : "text-red-500"
                 }`}
               >
-                {tx.type === "add" ? "+" : "-"}
+                {tx.type === "add" ? "+" : "−"}
                 {tx.quantity}
               </p>
-              <p className="text-[10px] text-gray-400">
+              <span
+                className={`inline-block px-2 py-0.5 rounded-lg text-[10px] font-semibold ${
+                  tx.type === "add"
+                    ? "bg-green-50 text-green-600"
+                    : "bg-orange-50 text-orange-600"
+                }`}
+              >
                 {tx.type === "add" ? "เติม" : "เบิก"}
-              </p>
+              </span>
             </div>
           </div>
         ))}

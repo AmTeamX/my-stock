@@ -20,9 +20,14 @@ export default function RootLayout({
       <head>
         <meta name="format-detection" content="telephone=no" />
         <meta name="theme-color" content="#06C755" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
       </head>
-      <body>
-        <main className="min-h-screen max-w-md mx-auto bg-[#F5F5F5] relative">
+      <body className="bg-[#F0F2F5]">
+        <main className="min-h-screen max-w-md mx-auto bg-[#F0F2F5] relative">
           {children}
         </main>
       </body>
