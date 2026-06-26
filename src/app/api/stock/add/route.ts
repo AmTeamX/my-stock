@@ -4,8 +4,16 @@ import { addStock } from "@/lib/supabase";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, quantity, unit, minThreshold, category, userId, wardId } =
-      body;
+    const {
+      name,
+      quantity,
+      unit,
+      minThreshold,
+      category,
+      userId,
+      wardId,
+      imageUrl,
+    } = body;
     if (!name || !name.trim())
       return NextResponse.json(
         { error: "กรุณากรอกชื่อรายการ" },
@@ -19,6 +27,7 @@ export async function POST(request: NextRequest) {
       minThreshold: Math.max(0, parseInt(minThreshold) || 0),
       category: category || "อื่นๆ",
       userId: userId || "unknown",
+      imageUrl: imageUrl || "",
     });
     return NextResponse.json({
       success: true,

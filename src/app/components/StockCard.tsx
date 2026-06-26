@@ -186,9 +186,16 @@ export default function StockCard({ stock, onUpdate }: StockCardProps) {
               📦
             </div>
           )}
-          <div className="absolute inset-0 bg-ink/30 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-short ease-out rounded-lg">
+          {/* Upload overlay — visible on hover (idle) or always (uploading) */}
+          <div
+            className={`absolute inset-0 bg-ink/30 flex items-center justify-center rounded-lg transition-opacity duration-short ease-out ${
+              uploading
+                ? "opacity-100"
+                : "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
+            }`}
+          >
             {uploading ? (
-              <span className="text-white text-sm font-medium">⏳</span>
+              <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
               <span className="text-white text-sm font-medium">
                 📷 เปลี่ยนรูป

@@ -1,249 +1,225 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MyStock Rich Menu 2500×1686</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>MyStock Rich Menu v2 2500×1686</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
 
-  body {
-    width: 2500px;
-    height: 1686px;
-    overflow: hidden;
-    font-family: 'Noto Sans Thai', 'Kanit', -apple-system, sans-serif;
-    background: #f0fdf4;
-  }
+            body {
+                width: 2500px;
+                height: 1686px;
+                overflow: hidden;
+                font-family:
+                    "Noto Sans Thai",
+                    "Kanit",
+                    -apple-system,
+                    sans-serif;
+                background: #f0fdf4;
+            }
 
-  .container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
+            .container {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
 
-  /* Header */
-  .header {
-    background: linear-gradient(135deg, #06C755 0%, #00B34A 100%);
-    padding: 60px 80px 40px;
-    color: white;
-    display: flex;
-    align-items: center;
-    gap: 30px;
-  }
-  .header-icon {
-    width: 100px;
-    height: 100px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 60px;
-    backdrop-filter: blur(10px);
-  }
-  .header-text h1 {
-    font-size: 64px;
-    font-weight: 800;
-    letter-spacing: -1px;
-  }
-  .header-text p {
-    font-size: 32px;
-    opacity: 0.85;
-    margin-top: 4px;
-  }
-  .header-status {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255,255,255,0.15);
-    padding: 16px 32px;
-    border-radius: 50px;
-    font-size: 28px;
-  }
-  .dot {
-    width: 20px;
-    height: 20px;
-    background: #4ade80;
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
+            /* Header */
+            .header {
+                background: #06c755;
+                padding: 40px 80px 30px;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .header-left {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+            }
+            .header-logo {
+                width: 80px;
+                height: 80px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 22px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 50px;
+            }
+            .header h1 {
+                font-size: 52px;
+                font-weight: 800;
+                letter-spacing: -0.5px;
+            }
+            .header p {
+                font-size: 26px;
+                opacity: 0.8;
+                margin-top: 2px;
+            }
+            .header-badge {
+                background: rgba(255, 255, 255, 0.15);
+                padding: 12px 28px;
+                border-radius: 40px;
+                font-size: 24px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .badge-dot {
+                width: 16px;
+                height: 16px;
+                background: #4ade80;
+                border-radius: 50%;
+            }
 
-  /* Grid */
-  .grid {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 6px;
-    background: #e5e7eb;
-    padding: 6px;
-  }
+            /* Grid */
+            .grid {
+                flex: 1;
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                grid-template-rows: 1fr 1fr;
+                gap: 4px;
+                background: #d1d5db;
+                padding: 4px;
+            }
 
-  .grid-item {
-    background: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
+            .card {
+                background: white;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 12px;
+                position: relative;
+                overflow: hidden;
+            }
 
-  .grid-item::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, transparent 0%, rgba(6,199,85,0.03) 100%);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .grid-item:hover::before {
-    opacity: 1;
-  }
+            .card-icon {
+                width: 120px;
+                height: 120px;
+                border-radius: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 60px;
+            }
 
-  .icon-box {
-    width: 140px;
-    height: 140px;
-    border-radius: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 72px;
-    position: relative;
-    z-index: 1;
-  }
+            .card-label {
+                font-size: 38px;
+                font-weight: 700;
+                color: #1f2937;
+            }
+            .card-sub {
+                font-size: 22px;
+                color: #9ca3af;
+                margin-top: -6px;
+            }
 
-  .icon-green { background: #dcfce7; }
-  .icon-blue { background: #dbeafe; }
-  .icon-orange { background: #fff7ed; }
-  .icon-purple { background: #f3e8ff; }
-  .icon-yellow { background: #fefce8; }
-  .icon-pink { background: #fce7f3; }
+            .bg-green {
+                background: #dcfce7;
+            }
+            .bg-blue {
+                background: #dbeafe;
+            }
+            .bg-orange {
+                background: #fff7ed;
+            }
+            .bg-purple {
+                background: #f3e8ff;
+            }
+            .bg-yellow {
+                background: #fefce8;
+            }
+            .bg-pink {
+                background: #fce7f3;
+            }
 
-  .label {
-    font-size: 40px;
-    font-weight: 700;
-    color: #1f2937;
-    position: relative;
-    z-index: 1;
-  }
-  .sub-label {
-    font-size: 24px;
-    color: #9ca3af;
-    position: relative;
-    z-index: 1;
-    margin-top: -12px;
-  }
+            /* Footer */
+            .footer {
+                background: #f8fafc;
+                padding: 20px 80px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 30px;
+                border-top: 1px solid #e5e7eb;
+            }
+            .footer span {
+                font-size: 20px;
+                color: #9ca3af;
+            }
+            .footer .brand {
+                font-weight: 700;
+                color: #06c755;
+                font-size: 24px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-left">
+                    <div class="header-logo">📦</div>
+                    <div>
+                        <h1>MyStock</h1>
+                        <p>จัดการคลังเวชภัณฑ์</p>
+                    </div>
+                </div>
+                <div class="header-badge">
+                    <div class="badge-dot"></div>
+                    พร้อมใช้งาน
+                </div>
+            </div>
 
-  /* Corner accent */
-  .accent {
-    position: absolute;
-    bottom: -10px;
-    right: -10px;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    opacity: 0.1;
-    transition: all 0.3s;
-  }
+            <!-- Menu Grid -->
+            <div class="grid">
+                <div class="card">
+                    <div class="card-icon bg-green">📦</div>
+                    <div class="card-label">ดูสต็อก</div>
+                    <div class="card-sub">เช็คของทั้งหมด</div>
+                </div>
+                <div class="card">
+                    <div class="card-icon bg-blue">➕</div>
+                    <div class="card-label">เพิ่มสต็อก</div>
+                    <div class="card-sub">เติมของเข้า Stock</div>
+                </div>
+                <div class="card">
+                    <div class="card-icon bg-orange">📤</div>
+                    <div class="card-label">เบิกของ</div>
+                    <div class="card-sub">ตัดสต็อก</div>
+                </div>
+                <div class="card">
+                    <div class="card-icon bg-purple">📋</div>
+                    <div class="card-label">ประวัติ</div>
+                    <div class="card-sub">ดูรายการย้อนหลัง</div>
+                </div>
+                <div class="card">
+                    <div class="card-icon bg-yellow">⚙️</div>
+                    <div class="card-label">ตั้งค่า</div>
+                    <div class="card-sub">วอร์ด & แจ้งเตือน</div>
+                </div>
+                <div class="card">
+                    <div class="card-icon bg-pink">📞</div>
+                    <div class="card-label">ติดต่อ</div>
+                    <div class="card-sub">ติดต่อแอดมิน</div>
+                </div>
+            </div>
 
-  .footer {
-    background: #f8fafc;
-    padding: 24px 80px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 2px solid #e5e7eb;
-  }
-  .footer-text {
-    font-size: 22px;
-    color: #9ca3af;
-  }
-  .footer-brand {
-    font-size: 26px;
-    font-weight: 700;
-    color: #06C755;
-  }
-</style>
-</head>
-<body>
-<div class="container">
-  <!-- Header -->
-  <div class="header">
-    <div class="header-icon">📦</div>
-    <div class="header-text">
-      <h1>MyStock</h1>
-      <p>จัดการ Stock พยาบาล</p>
-    </div>
-    <div class="header-status">
-      <div class="dot"></div>
-      ระบบพร้อมใช้งาน
-    </div>
-  </div>
-
-  <!-- Menu Grid -->
-  <div class="grid">
-    <!-- Row 1 -->
-    <div class="grid-item">
-      <div class="icon-box icon-green">📦</div>
-      <div class="label">ดูสต็อก</div>
-      <div class="sub-label">เช็คของทั้งหมด</div>
-      <div class="accent" style="background:#06C755"></div>
-    </div>
-    <div class="grid-item">
-      <div class="icon-box icon-blue">➕</div>
-      <div class="label">เพิ่มสต็อก</div>
-      <div class="sub-label">เติมของเข้า Stock</div>
-      <div class="accent" style="background:#3b82f6"></div>
-    </div>
-    <div class="grid-item">
-      <div class="icon-box icon-orange">📤</div>
-      <div class="label">เบิกของ</div>
-      <div class="sub-label">ตัดสต็อก</div>
-      <div class="accent" style="background:#f97316"></div>
-    </div>
-
-    <!-- Row 2 -->
-    <div class="grid-item">
-      <div class="icon-box icon-purple">📋</div>
-      <div class="label">ประวัติ</div>
-      <div class="sub-label">ดูรายการย้อนหลัง</div>
-      <div class="accent" style="background:#8b5cf6"></div>
-    </div>
-    <div class="grid-item">
-      <div class="icon-box icon-yellow">⚙️</div>
-      <div class="label">ตั้งค่า</div>
-      <div class="sub-label">แจ้งเตือน & ผู้รับ</div>
-      <div class="accent" style="background:#eab308"></div>
-    </div>
-    <div class="grid-item">
-      <div class="icon-box icon-pink">📞</div>
-      <div class="label">ติดต่อ</div>
-      <div class="sub-label">ติดต่อแอดมิน</div>
-      <div class="accent" style="background:#ec4899"></div>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <div class="footer">
-    <span class="footer-text">LINE LIFF App</span>
-    <span class="footer-brand">🏥 MyStock</span>
-    <span class="footer-text">Powered by LINE</span>
-  </div>
-</div>
-
-<!-- Guide -->
-<div style="position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.7); color: white; padding: 12px 20px; border-radius: 12px; font-size: 20px; z-index: 999;">
-  💡 กด <b>Cmd+Shift+4</b> แล้วลากครอบทั้งหน้า → เซฟเป็น PNG
-</div>
-</body>
+            <!-- Footer -->
+            <div class="footer">
+                <span>LINE LIFF</span>
+                <span class="brand">🏥 MyStock v2</span>
+                <span>Multi-Ward</span>
+            </div>
+        </div>
+    </body>
 </html>

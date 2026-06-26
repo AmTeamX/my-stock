@@ -30,19 +30,49 @@ export default function AddStockPage() {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [imageUrl, setImageUrl] = useState<string>("");
+  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Allow any image size
-    // (no client-side limit — server handles validation)
-    setImageFile(file);
+
+    // Show preview immediately
     const reader = new FileReader();
     reader.onload = () => setImagePreview(reader.result as string);
     reader.readAsDataURL(file);
+    setImageFile(file);
+
+    // Upload immediately
+    setUploading(true);
+    setMessage("");
+    try {
+      const base64Reader = new FileReader();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        base64Reader.onload = () => resolve(base64Reader.result as string);
+        base64Reader.onerror = reject;
+        base64Reader.readAsDataURL(file);
+      });
+      const res = await fetch("/api/stock/upload-image-temp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64 }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "อัปโหลดไม่สำเร็จ");
+      setImageUrl(data.imageUrl);
+      setMessage("✅ อัปโหลดรูปสำเร็จ");
+    } catch (err: any) {
+      setMessage(`❌ ${err.message}`);
+      setImageFile(null);
+      setImagePreview("");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,6 +81,7 @@ export default function AddStockPage() {
       setMessage("❌ กรุณากรอกชื่อรายการ");
       return;
     }
+    if (uploading) return; // ห้าม save ถ้ายังอัปโหลดรูปอยู่
     setLoading(true);
     setMessage("");
 
@@ -58,30 +89,10 @@ export default function AddStockPage() {
       const res = await fetch("/api/stock/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, userId: userName, wardId }),
+        body: JSON.stringify({ ...form, userId: userName, wardId, imageUrl }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "เพิ่มไม่สำเร็จ");
-
-      if (imageFile) {
-        const stocksRes = await fetch("/api/stock");
-        const stocksData = await stocksRes.json();
-        const stocks = stocksData.stocks || [];
-        const newItem = stocks.find((s: any) => s.name === form.name.trim());
-        if (newItem?.id) {
-          const reader = new FileReader();
-          const base64 = await new Promise<string>((resolve, reject) => {
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(imageFile);
-          });
-          await fetch("/api/stock/upload-image", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ image: base64, stockId: newItem.id }),
-          });
-        }
-      }
 
       setMessage(
         `✅ เพิ่ม ${form.name} จำนวน ${form.quantity} ${form.unit} สำเร็จ`,
@@ -95,7 +106,7 @@ export default function AddStockPage() {
       });
       setImageFile(null);
       setImagePreview("");
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      setImageUrl("");
       setTimeout(() => router.push("/"), 1500);
     } catch (err: any) {
       setMessage(`❌ ${err.message}`);
@@ -143,21 +154,33 @@ export default function AddStockPage() {
                     alt="Preview"
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-ink/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-short ease-out">
-                    <span className="text-white text-sm font-medium bg-ink/50 px-4 py-2 rounded-md">
-                      แตะเพื่อเปลี่ยนรูป
-                    </span>
-                  </div>
+                  {uploading && (
+                    <div className="absolute inset-0 bg-ink/40 flex items-center justify-center">
+                      <span className="inline-block w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  )}
+                  {!uploading && (
+                    <div className="absolute inset-0 bg-ink/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-short ease-out">
+                      <span className="text-white text-sm font-medium bg-ink/50 px-4 py-2 rounded-md">
+                        แตะเพื่อเปลี่ยนรูป
+                      </span>
+                    </div>
+                  )}
                 </>
+              ) : uploading ? (
+                <div className="text-center p-6">
+                  <span className="inline-block w-10 h-10 border-3 border-accent border-t-transparent rounded-full animate-spin mb-3" />
+                  <p className="text-sm text-ink-2 font-medium">
+                    กำลังอัปโหลด...
+                  </p>
+                </div>
               ) : (
                 <div className="text-center p-6">
                   <span className="text-3xl block mb-2">📸</span>
                   <p className="text-sm text-ink-2 font-medium">
                     แตะเพื่อเลือกรูปภาพ
                   </p>
-                  <p className="text-xs text-muted mt-1">
-                    รองรับ JPG, PNG · ขนาดไม่เกิน 3MB
-                  </p>
+                  <p className="text-xs text-muted mt-1">รองรับ JPG, PNG</p>
                 </div>
               )}
             </div>
@@ -316,10 +339,14 @@ export default function AddStockPage() {
           {/* Submit */}
           <button
             type="submit"
-            disabled={loading || !form.name.trim()}
+            disabled={loading || uploading || !form.name.trim()}
             className="btn-primary w-full text-base"
           >
-            {loading ? "กำลังบันทึก..." : "บันทึกรายการ"}
+            {uploading
+              ? "⏳ กำลังอัปโหลดรูป..."
+              : loading
+                ? "กำลังบันทึก..."
+                : "บันทึกรายการ"}
           </button>
 
           {/* Message */}
