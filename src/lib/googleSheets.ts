@@ -364,15 +364,28 @@ export async function initializeSheets(): Promise<void> {
   const sheets = await getSheetsClient();
   const sheetId = getSheetId();
 
-  // Check and create Stock sheet with headers
-  let hasStockSheet = true;
-  try {
-    await sheets.spreadsheets.values.get({
+  // Get existing sheet names
+  const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
+  const existingNames = (spreadsheet.data.sheets || []).map(
+    (s) => s.properties?.title || "",
+  );
+
+  // Helper: create sheet tab if not exists (returns true if already existed)
+  async function ensureSheet(title: string): Promise<boolean> {
+    if (existingNames.includes(title)) return true;
+    // Remove default "Sheet1" if it exists and this is the first real sheet
+    await sheets.spreadsheets.batchUpdate({
       spreadsheetId: sheetId,
-      range: "stock!A1",
+      requestBody: {
+        requests: [{ addSheet: { properties: { title } } }],
+      },
     });
-  } catch {
-    hasStockSheet = false;
+    return false;
+  }
+
+  // --- Stock sheet ---
+  const hadStock = await ensureSheet("stock");
+  if (!hadStock) {
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
       range: "stock!A1",
@@ -392,17 +405,14 @@ export async function initializeSheets(): Promise<void> {
         ],
       },
     });
-  }
-
-  // If sheet exists but missing column H (image), add it
-  if (hasStockSheet) {
+  } else {
+    // Sheet exists — check if H column missing, add it
     try {
       await sheets.spreadsheets.values.get({
         spreadsheetId: sheetId,
         range: "stock!H1",
       });
     } catch {
-      // Column H missing, add header
       await sheets.spreadsheets.values.update({
         spreadsheetId: sheetId,
         range: "stock!H1",
@@ -412,13 +422,9 @@ export async function initializeSheets(): Promise<void> {
     }
   }
 
-  // Check and create Transactions sheet with headers
-  try {
-    await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: "transactions!A1",
-    });
-  } catch {
+  // --- Transactions sheet ---
+  const hadTx = await ensureSheet("transactions");
+  if (!hadTx) {
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
       range: "transactions!A1",
@@ -431,13 +437,9 @@ export async function initializeSheets(): Promise<void> {
     });
   }
 
-  // Check and create Settings sheet
-  try {
-    await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: "settings!A1",
-    });
-  } catch {
+  // --- Settings sheet ---
+  const hadSettings = await ensureSheet("settings");
+  if (!hadSettings) {
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
       range: "settings!A1",
