@@ -1,5 +1,6 @@
 import "./globals.css";
 import LiffAuthGuard from "./components/LiffAuthGuard";
+import WardGuard from "./components/WardGuard";
 
 export const metadata = {
   title: "MyStock — จัดการ Stock พยาบาล",
@@ -32,9 +33,11 @@ export default function RootLayout({
       </head>
       <body className="bg-paper">
         <LiffAuthGuard>
-          <main className="min-h-screen max-w-md mx-auto bg-paper relative">
-            {children}
-          </main>
+          <WardGuard>
+            <main className="min-h-screen max-w-md mx-auto bg-paper relative">
+              {children}
+            </main>
+          </WardGuard>
         </LiffAuthGuard>
       </body>
     </html>

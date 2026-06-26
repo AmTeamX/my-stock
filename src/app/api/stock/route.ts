@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getStockList } from "@/lib/supabase";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const stocks = await getStockList();
-    // Map supabase column names to frontend types
+    const wardId = request.nextUrl.searchParams.get("wardId") || "";
+    const stocks = await getStockList(wardId);
     const mapped = stocks.map((s) => ({
       id: s.id,
       name: s.name,
@@ -17,9 +17,8 @@ export async function GET() {
     }));
     return NextResponse.json({ stocks: mapped, total: mapped.length });
   } catch (error: any) {
-    console.error("GET /api/stock error:", error);
     return NextResponse.json(
-      { error: error.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล" },
+      { error: error.message || "เกิดข้อผิดพลาด" },
       { status: 500 },
     );
   }

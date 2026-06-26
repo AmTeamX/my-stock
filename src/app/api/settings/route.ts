@@ -1,37 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSettings, updateSettings } from "@/lib/supabase";
+import { getUserNotifySetting, setUserNotifySetting } from "@/lib/supabase";
 
-export async function GET() {
+// Get current user's notification preference
+export async function GET(request: NextRequest) {
   try {
-    const settings = await getSettings();
-    return NextResponse.json({ settings });
+    const userId = request.nextUrl.searchParams.get("userId") || "";
+    const notify = await getUserNotifySetting(userId);
+    return NextResponse.json({ notify });
   } catch (error: any) {
-    console.error("GET /api/settings error:", error);
-    return NextResponse.json(
-      { error: error.message || "เกิดข้อผิดพลาด" },
-      { status: 500 },
-    );
+    return NextResponse.json({ notify: true }); // default true
   }
 }
 
+// Toggle user's notification preference
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    await updateSettings({
-      enabled: body.enabled,
-      threshold: body.threshold,
-      recipientUserIds: body.recipientUserIds,
-      notifyAllGroupMembers: body.notifyAllGroupMembers,
-    });
-    return NextResponse.json({
-      success: true,
-      message: "บันทึกการตั้งค่าสำเร็จ",
-    });
+    const { userId, notify } = await request.json();
+    await setUserNotifySetting(userId, notify);
+    return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error("POST /api/settings error:", error);
-    return NextResponse.json(
-      { error: error.message || "เกิดข้อผิดพลาดในการบันทึก" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { StockItem } from "@/types";
 import { useLiffUser } from "./useLiffUser";
+import { useWardId } from "./useWardId";
 
 interface StockCardProps {
   stock: StockItem;
@@ -11,6 +12,7 @@ interface StockCardProps {
 
 export default function StockCard({ stock, onUpdate }: StockCardProps) {
   const { userName } = useLiffUser();
+  const { wardId } = useWardId();
   const [withdrawing, setWithdrawing] = useState(false);
   const [withdrawQty, setWithdrawQty] = useState(1);
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -49,6 +51,7 @@ export default function StockCard({ stock, onUpdate }: StockCardProps) {
           stockId: stock.id,
           quantity: withdrawQty,
           userId: userName,
+          wardId,
         }),
       });
 
@@ -80,7 +83,12 @@ export default function StockCard({ stock, onUpdate }: StockCardProps) {
       const res = await fetch("/api/stock/withdraw", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stockId: stock.id, quantity: qty }),
+        body: JSON.stringify({
+          stockId: stock.id,
+          quantity: qty,
+          userId: userName,
+          wardId,
+        }),
       });
 
       const data = await res.json();
@@ -104,10 +112,8 @@ export default function StockCard({ stock, onUpdate }: StockCardProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 3 * 1024 * 1024) {
-      setMessage("❌ รูปภาพต้องมีขนาดไม่เกิน 3MB");
-      return;
-    }
+    // Allow any image size
+    // (no client-side limit — server handles validation)
 
     setUploading(true);
     setMessage("");

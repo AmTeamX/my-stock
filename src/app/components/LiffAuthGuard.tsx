@@ -1,11 +1,20 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { initLiff, isLoggedIn, getLiff } from "@/lib/liff";
+import { initLiff, isLoggedIn, getLiff, getProfile } from "@/lib/liff";
 
-type AuthState = "loading" | "checking" | "authenticated" | "login-required" | "dev-mode";
+type AuthState =
+  | "loading"
+  | "checking"
+  | "authenticated"
+  | "login-required"
+  | "dev-mode";
 
-export default function LiffAuthGuard({ children }: { children: React.ReactNode }) {
+export default function LiffAuthGuard({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [authState, setAuthState] = useState<AuthState>("loading");
 
   const checkAuth = useCallback(async () => {
@@ -23,6 +32,19 @@ export default function LiffAuthGuard({ children }: { children: React.ReactNode 
 
       if (isLoggedIn()) {
         setAuthState("authenticated");
+        // Register user for notifications
+        try {
+          const profile = await getProfile();
+          if (profile?.userId) {
+            await fetch("/api/users/register", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId: profile.userId }),
+            });
+          }
+        } catch {
+          /* silent */
+        }
       } else {
         setAuthState("login-required");
       }
@@ -67,10 +89,12 @@ export default function LiffAuthGuard({ children }: { children: React.ReactNode 
           กรุณาเข้าสู่ระบบด้วย LINE
         </h1>
         <p className="text-muted text-sm mt-2 text-center leading-relaxed max-w-xs">
-          ระบบนี้ใช้ได้เฉพาะใน LINE เท่านั้น
-          กดปุ่มด้านล่างเพื่อยืนยันตัวตน
+          ระบบนี้ใช้ได้เฉพาะใน LINE เท่านั้น กดปุ่มด้านล่างเพื่อยืนยันตัวตน
         </p>
-        <button onClick={handleLogin} className="btn-primary mt-8 text-base px-10">
+        <button
+          onClick={handleLogin}
+          className="btn-primary mt-8 text-base px-10"
+        >
           เข้าสู่ระบบด้วย LINE
         </button>
       </div>

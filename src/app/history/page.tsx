@@ -3,20 +3,24 @@
 import { useState, useEffect } from "react";
 import BottomNav from "../components/BottomNav";
 import { Transaction } from "@/types";
+import { useWardId } from "../components/useWardId";
 
 export default function HistoryPage() {
+  const { wardId } = useWardId();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "add" | "withdraw">("all");
 
   useEffect(() => {
-    fetchHistory();
-  }, []);
+    if (wardId) fetchHistory();
+  }, [wardId]);
 
   const fetchHistory = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/stock/transactions");
+      const res = await fetch(
+        `/api/stock/transactions?wardId=${encodeURIComponent(wardId)}`,
+      );
       const data = await res.json();
       setTransactions(data.transactions || []);
     } catch (err) {

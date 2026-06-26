@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getTransactions } from "@/lib/supabase";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const rows = await getTransactions(50);
+    const wardId = request.nextUrl.searchParams.get("wardId") || "";
+    const rows = await getTransactions(wardId, 50);
     const transactions = rows.map((tx) => ({
       id: tx.id,
       date: new Date(tx.created_at).toLocaleString("th-TH"),
@@ -15,10 +16,6 @@ export async function GET() {
     }));
     return NextResponse.json({ transactions });
   } catch (error: any) {
-    console.error("GET /api/stock/transactions error:", error);
-    return NextResponse.json(
-      { error: error.message || "เกิดข้อผิดพลาด" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

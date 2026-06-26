@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import BottomNav from "../components/BottomNav";
 import { useRouter } from "next/navigation";
 import { useLiffUser } from "../components/useLiffUser";
+import { useWardId } from "../components/useWardId";
 
 const CATEGORIES = [
   "เวชภัณฑ์",
@@ -19,6 +20,7 @@ const UNITS = ["กล่อง", "ชิ้น", "ขวด", "แพ็ค", "
 export default function AddStockPage() {
   const router = useRouter();
   const { userName } = useLiffUser();
+  const { wardId } = useWardId();
   const [form, setForm] = useState({
     name: "",
     quantity: 1,
@@ -35,10 +37,8 @@ export default function AddStockPage() {
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 3 * 1024 * 1024) {
-      setMessage("❌ รูปภาพต้องมีขนาดไม่เกิน 3MB");
-      return;
-    }
+    // Allow any image size
+    // (no client-side limit — server handles validation)
     setImageFile(file);
     const reader = new FileReader();
     reader.onload = () => setImagePreview(reader.result as string);
@@ -58,7 +58,7 @@ export default function AddStockPage() {
       const res = await fetch("/api/stock/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, userId: userName }),
+        body: JSON.stringify({ ...form, userId: userName, wardId }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "เพิ่มไม่สำเร็จ");

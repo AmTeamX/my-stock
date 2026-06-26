@@ -4,8 +4,10 @@ import { useState, useEffect, useCallback } from "react";
 import { StockItem } from "@/types";
 import BottomNav from "./components/BottomNav";
 import StockCard from "./components/StockCard";
+import { useWardId } from "./components/useWardId";
 
 export default function HomePage() {
+  const { wardId, wardName } = useWardId();
   const [stocks, setStocks] = useState<StockItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -16,7 +18,9 @@ export default function HomePage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/stock");
+      const res = await fetch(
+        `/api/stock?wardId=${encodeURIComponent(wardId)}`,
+      );
       if (!res.ok) throw new Error("โหลดข้อมูลไม่สำเร็จ");
       const data = await res.json();
       setStocks(data.stocks || []);
@@ -25,11 +29,11 @@ export default function HomePage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [wardId]);
 
   useEffect(() => {
-    fetchStocks();
-  }, [fetchStocks]);
+    if (wardId) fetchStocks();
+  }, [wardId, fetchStocks]);
 
   const categories = [
     "ทั้งหมด",
@@ -52,7 +56,9 @@ export default function HomePage() {
       <div className="header-app">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight">MyStock</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight">
+              {wardName || "MyStock"}
+            </h1>
             <p className="text-sm text-white/75 mt-1">จัดการคลังเวชภัณฑ์</p>
           </div>
           <span className="text-3xl opacity-80">🏥</span>
@@ -111,9 +117,7 @@ export default function HomePage() {
         {error && (
           <div className="card text-center py-10">
             <span className="text-3xl block mb-3">⚠️</span>
-            <p className="text-danger font-medium">
-              {error}
-            </p>
+            <p className="text-danger font-medium">{error}</p>
             <button onClick={fetchStocks} className="btn-primary mt-4">
               ลองใหม่อีกครั้ง
             </button>
@@ -148,9 +152,7 @@ export default function HomePage() {
               <p className="text-2xl font-extrabold text-accent tabular-nums">
                 {stocks.length}
               </p>
-              <p className="text-xs text-muted mt-1">
-                รายการทั้งหมด
-              </p>
+              <p className="text-xs text-muted mt-1">รายการทั้งหมด</p>
             </div>
             <div className="text-center border-x border-rule">
               <p
@@ -160,17 +162,13 @@ export default function HomePage() {
               >
                 {lowStockCount}
               </p>
-              <p className="text-xs text-muted mt-1">
-                ใกล้หมด
-              </p>
+              <p className="text-xs text-muted mt-1">ใกล้หมด</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-extrabold text-ink-2 tabular-nums">
                 {categories.length - 1}
               </p>
-              <p className="text-xs text-muted mt-1">
-                หมวดหมู่
-              </p>
+              <p className="text-xs text-muted mt-1">หมวดหมู่</p>
             </div>
           </div>
         </div>

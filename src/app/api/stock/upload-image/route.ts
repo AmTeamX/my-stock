@@ -10,7 +10,7 @@ export const maxDuration = 30;
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { image, stockId } = body;
+    const { image, stockId, wardId } = body;
 
     if (!image) {
       return NextResponse.json({ error: "กรุณาเลือกรูปภาพ" }, { status: 400 });
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate stock exists
-    const stocks = await getStockList();
+    const stocks = await getStockList(wardId || "");
     const stock = stocks.find((s) => s.id === stockId);
     if (!stock) {
       return NextResponse.json(
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
     const fileName = `${stockId}/${Date.now()}.jpg`;
     const imageUrl = await uploadImageToStorage(image, fileName);
-    await updateStockImage(stockId, imageUrl);
+    await updateStockImage(wardId || "", stockId, imageUrl);
 
     return NextResponse.json({
       success: true,
