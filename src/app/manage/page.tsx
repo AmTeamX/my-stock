@@ -5,16 +5,7 @@ import BottomNav from "../components/BottomNav";
 import { useLiffUser } from "../components/useLiffUser";
 import { useWardId } from "../components/useWardId";
 import { StockItem } from "@/types";
-import {
-  Camera,
-  Pencil,
-  Trash2,
-  ArrowLeft,
-  Search,
-  Package,
-} from "lucide-react";
-
-type View = "list" | "add";
+import { Camera, Pencil, Trash2, Search, Package } from "lucide-react";
 
 const UNITS = ["กล่อง", "ชิ้น", "ขวด", "แพ็ค", "ม้วน", "คู่", "ชุด", "อัน"];
 const CATS = [
@@ -29,13 +20,14 @@ const CATS = [
 export default function ManagePage() {
   const { userName } = useLiffUser();
   const { wardId } = useWardId();
-  const [view, setView] = useState<View>("list");
   const [stocks, setStocks] = useState<StockItem[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // Add modal
+  const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({
     name: "",
     quantity: 1,
@@ -48,6 +40,7 @@ export default function ManagePage() {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // Edit modal
   const [editing, setEditing] = useState<StockItem | null>(null);
   const [editForm, setEditForm] = useState({
     name: "",
@@ -137,8 +130,8 @@ export default function ManagePage() {
       });
       setImagePreview("");
       setImageUrl("");
+      setShowAdd(false);
       fetchStocks();
-      setView("list");
     } catch (err: any) {
       setMessage("❌ " + err.message);
     } finally {
@@ -198,202 +191,196 @@ export default function ManagePage() {
     }
   };
 
-  if (view === "add") {
-    return (
-      <div className="pb-24">
-        <div className="header-app flex items-center gap-3">
-          <button
-            onClick={() => {
-              setView("list");
-              setMessage("");
+  const closeAdd = () => {
+    setShowAdd(false);
+    setMessage("");
+    setForm({
+      name: "",
+      quantity: 1,
+      unit: "ชิ้น",
+      minThreshold: 10,
+      category: "เวชภัณฑ์",
+    });
+    setImagePreview("");
+    setImageUrl("");
+  };
+
+  // Modal form component (shared by add + edit)
+  const ModalForm = ({
+    title,
+    onSave,
+    onClose,
+    isEdit,
+  }: {
+    title: string;
+    onSave: () => void;
+    onClose: () => void;
+    isEdit: boolean;
+  }) => (
+    <div className="space-y-4">
+      {/* Image upload (add only) */}
+      {!isEdit && (
+        <div>
+          <label className="block text-sm font-semibold text-ink-2 mb-2">
+            📷 รูปภาพรายการ{" "}
+            <span className="text-muted font-normal text-xs">(ไม่บังคับ)</span>
+          </label>
+          <div
+            onClick={() => fileRef.current?.click()}
+            className="relative w-full h-36 rounded-lg border-2 border-dashed border-rule flex items-center justify-center cursor-pointer overflow-hidden hover:border-accent transition-colors duration-short ease-out bg-paper"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") fileRef.current?.click();
             }}
-            className="text-white text-2xl leading-none"
           >
-            <ArrowLeft size={20} />
-          </button>
-          <h1 className="text-3xl font-extrabold tracking-tight">
-            เพิ่มรายการใหม่
-          </h1>
-        </div>
-        <div className="px-4 mt-4 space-y-4">
-          <div className="card p-5 space-y-4">
-            {/* Image */}
-            <div>
-              <label className="block text-sm font-semibold text-ink-2 mb-2">
-                📷 รูปภาพรายการ{" "}
-                <span className="text-muted font-normal text-xs">
-                  (ไม่บังคับ)
-                </span>
-              </label>
-              <div
-                onClick={() => fileRef.current?.click()}
-                className="relative w-full h-40 rounded-lg border-2 border-dashed border-rule flex items-center justify-center cursor-pointer overflow-hidden hover:border-accent transition-colors duration-short ease-out bg-paper"
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ")
-                    fileRef.current?.click();
-                }}
-              >
-                {imagePreview ? (
-                  <>
-                    <img
-                      src={imagePreview}
-                      alt=""
-                      className="w-full h-full object-cover"
-                    />
-                    {uploading && (
-                      <div className="absolute inset-0 bg-ink/40 flex items-center justify-center">
-                        <span className="inline-block w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin" />
-                      </div>
-                    )}
-                  </>
-                ) : uploading ? (
-                  <div className="text-center">
-                    <span className="inline-block w-8 h-8 border-3 border-accent border-t-transparent rounded-full animate-spin mb-2" />
-                    <p className="text-sm text-ink-2">กำลังอัปโหลด...</p>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <span className="text-3xl block mb-2"><Camera size={24} /></span>
-                    <p className="text-sm text-ink-2">แตะเพื่อเลือกรูปภาพ</p>
-                    <p className="text-xs text-muted mt-1">รองรับ JPG, PNG</p>
+            {imagePreview ? (
+              <>
+                <img
+                  src={imagePreview}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+                {uploading && (
+                  <div className="absolute inset-0 bg-ink/40 flex items-center justify-center">
+                    <span className="inline-block w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   </div>
                 )}
+              </>
+            ) : uploading ? (
+              <div className="text-center">
+                <span className="inline-block w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin mb-2" />
+                <p className="text-xs text-ink-2">กำลังอัปโหลด...</p>
               </div>
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImage}
-              />
-            </div>
-            {/* Name */}
-            <div>
-              <label
-                htmlFor="add-name"
-                className="block text-sm font-semibold text-ink-2 mb-2"
-              >
-                ชื่อรายการ <span className="text-danger">*</span>
-              </label>
-              <input
-                id="add-name"
-                className="input-field"
-                placeholder="เช่น ถุงมือยาง, เข็มฉีดยา"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-              />
-            </div>
-            {/* Qty + Unit */}
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label
-                  htmlFor="add-qty"
-                  className="block text-sm font-semibold text-ink-2 mb-2"
-                >
-                  จำนวนเริ่มต้น
-                </label>
-                <input
-                  id="add-qty"
-                  type="number"
-                  className="input-field"
-                  min={0}
-                  value={form.quantity}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      quantity: Math.max(0, parseInt(e.target.value) || 0),
-                    })
-                  }
-                />
+            ) : (
+              <div className="text-center">
+                <Camera size={24} className="text-muted mx-auto mb-1" />
+                <p className="text-xs text-muted">แตะเพื่อเลือกรูป</p>
               </div>
-              <div className="w-24">
-                <label
-                  htmlFor="add-unit"
-                  className="block text-sm font-semibold text-ink-2 mb-2"
-                >
-                  หน่วย
-                </label>
-                <select
-                  id="add-unit"
-                  className="input-field"
-                  value={form.unit}
-                  onChange={(e) => setForm({ ...form, unit: e.target.value })}
-                >
-                  {UNITS.map((u) => (
-                    <option key={u}>{u}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            {/* Category */}
-            <div>
-              <label
-                htmlFor="add-cat"
-                className="block text-sm font-semibold text-ink-2 mb-2"
-              >
-                หมวดหมู่
-              </label>
-              <select
-                id="add-cat"
-                className="input-field"
-                value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-              >
-                {CATS.map((c) => (
-                  <option key={c}>{c}</option>
-                ))}
-              </select>
-            </div>
-            {/* Threshold */}
-            <div>
-              <label
-                htmlFor="add-thr"
-                className="block text-sm font-semibold text-ink-2 mb-2"
-              >
-                🔻 จำนวนขั้นต่ำก่อนแจ้งเตือน
-              </label>
-              <input
-                id="add-thr"
-                type="number"
-                className="input-field"
-                min={0}
-                value={form.minThreshold}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    minThreshold: Math.max(0, parseInt(e.target.value) || 0),
-                  })
-                }
-              />
-            </div>
-            <button
-              onClick={handleAdd}
-              disabled={busy || uploading || !form.name.trim()}
-              className="btn-primary w-full"
-            >
-              {uploading
-                ? "⏳ กำลังอัปโหลดรูป..."
-                : busy
-                  ? "กำลังบันทึก..."
-                  : "💾 บันทึกรายการ"}
-            </button>
+            )}
           </div>
-          {message && (
-            <div
-              className={`p-4 rounded-lg text-sm font-medium text-center ${message.startsWith("✅") ? "bg-success-bg text-success border border-success/20" : "bg-danger-bg text-danger border border-danger/20"}`}
-            >
-              {message}
-            </div>
-          )}
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleImage}
+          />
         </div>
-        <BottomNav current="manage" />
+      )}
+      <div>
+        <label className="block text-sm font-semibold text-ink-2 mb-2">
+          ชื่อรายการ <span className="text-danger">*</span>
+        </label>
+        <input
+          className="input-field"
+          placeholder="เช่น ถุงมือยาง, เข็มฉีดยา"
+          value={isEdit ? editForm.name : form.name}
+          onChange={(e) =>
+            isEdit
+              ? setEditForm({ ...editForm, name: e.target.value })
+              : setForm({ ...form, name: e.target.value })
+          }
+        />
       </div>
-    );
-  }
+      <div className="flex gap-2">
+        <div className="flex-1">
+          <label className="block text-sm font-semibold text-ink-2 mb-2">
+            จำนวน
+          </label>
+          <input
+            type="number"
+            className="input-field"
+            min={0}
+            value={isEdit ? editForm.quantity : form.quantity}
+            onChange={(e) =>
+              isEdit
+                ? setEditForm({
+                    ...editForm,
+                    quantity: Math.max(0, parseInt(e.target.value) || 0),
+                  })
+                : setForm({
+                    ...form,
+                    quantity: Math.max(0, parseInt(e.target.value) || 0),
+                  })
+            }
+          />
+        </div>
+        <div className="w-24">
+          <label className="block text-sm font-semibold text-ink-2 mb-2">
+            หน่วย
+          </label>
+          <select
+            className="input-field"
+            value={isEdit ? editForm.unit : form.unit}
+            onChange={(e) =>
+              isEdit
+                ? setEditForm({ ...editForm, unit: e.target.value })
+                : setForm({ ...form, unit: e.target.value })
+            }
+          >
+            {UNITS.map((u) => (
+              <option key={u}>{u}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-ink-2 mb-2">
+          หมวดหมู่
+        </label>
+        <select
+          className="input-field"
+          value={isEdit ? editForm.category : form.category}
+          onChange={(e) =>
+            isEdit
+              ? setEditForm({ ...editForm, category: e.target.value })
+              : setForm({ ...form, category: e.target.value })
+          }
+        >
+          {CATS.map((c) => (
+            <option key={c}>{c}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-ink-2 mb-2">
+          🔻 จำนวนขั้นต่ำก่อนแจ้งเตือน
+        </label>
+        <input
+          type="number"
+          className="input-field"
+          min={0}
+          value={isEdit ? editForm.minThreshold : form.minThreshold}
+          onChange={(e) =>
+            isEdit
+              ? setEditForm({
+                  ...editForm,
+                  minThreshold: Math.max(0, parseInt(e.target.value) || 0),
+                })
+              : setForm({
+                  ...form,
+                  minThreshold: Math.max(0, parseInt(e.target.value) || 0),
+                })
+          }
+        />
+      </div>
+      <button
+        onClick={onSave}
+        disabled={
+          busy || (!isEdit && uploading) || (!isEdit && !form.name.trim())
+        }
+        className="btn-primary w-full"
+      >
+        {!isEdit && uploading
+          ? "⏳ กำลังอัปโหลดรูป..."
+          : busy
+            ? "กำลังบันทึก..."
+            : "💾 บันทึก"}
+      </button>
+    </div>
+  );
 
-  // List view
   return (
     <div className="pb-24">
       <div className="header-app">
@@ -403,7 +390,7 @@ export default function ManagePage() {
           </h1>
           <button
             onClick={() => {
-              setView("add");
+              setShowAdd(true);
               setMessage("");
             }}
             className="bg-white/20 text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-white/30 transition-colors duration-short ease-out"
@@ -412,6 +399,7 @@ export default function ManagePage() {
           </button>
         </div>
       </div>
+
       <div className="px-4 mt-4 space-y-4">
         <input
           className="input-field"
@@ -431,7 +419,7 @@ export default function ManagePage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  "📦"
+                  <Package size={20} className="text-muted" />
                 )}
               </div>
               <div className="flex-1 min-w-0">
@@ -465,18 +453,47 @@ export default function ManagePage() {
           )}
         </div>
       </div>
+
+      {/* Add Modal */}
+      {showAdd && (
+        <div
+          className="fixed inset-0 z-modal bg-ink/40 flex items-end sm:items-center justify-center"
+          onClick={closeAdd}
+        >
+          <div
+            className="bg-paper-2 rounded-t-2xl sm:rounded-2xl w-full max-w-md p-5 max-h-[85vh] overflow-y-auto pb-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-bold text-ink text-lg">➕ เพิ่มรายการใหม่</h2>
+              <button onClick={closeAdd} className="text-muted text-xl">
+                &times;
+              </button>
+            </div>
+            <ModalForm
+              title="เพิ่มรายการใหม่"
+              onSave={handleAdd}
+              onClose={closeAdd}
+              isEdit={false}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
       {editing && (
         <div
           className="fixed inset-0 z-modal bg-ink/40 flex items-end sm:items-center justify-center"
           onClick={() => setEditing(null)}
         >
           <div
-            className="bg-paper-2 rounded-t-2xl sm:rounded-2xl w-full max-w-md p-5 space-y-4 max-h-[80vh] overflow-y-auto"
+            className="bg-paper-2 rounded-t-2xl sm:rounded-2xl w-full max-w-md p-5 max-h-[85vh] overflow-y-auto pb-8"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-4">
               <h2 className="font-bold text-ink text-lg">
-                <Pencil size={14} /> แก้ไข {editing.name}
+                <Pencil size={16} className="inline mr-1" />
+                แก้ไข {editing.name}
               </h2>
               <button
                 onClick={() => setEditing(null)}
@@ -485,90 +502,16 @@ export default function ManagePage() {
                 &times;
               </button>
             </div>
-            <div>
-              <label className="block text-sm font-semibold text-ink-2 mb-2">
-                ชื่อรายการ
-              </label>
-              <input
-                className="input-field"
-                value={editForm.name}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, name: e.target.value })
-                }
-              />
-            </div>
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label className="block text-sm font-semibold text-ink-2 mb-2">
-                  จำนวน
-                </label>
-                <input
-                  type="number"
-                  className="input-field"
-                  value={editForm.quantity}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      quantity: parseInt(e.target.value) || 0,
-                    })
-                  }
-                />
-              </div>
-              <div className="w-24">
-                <label className="block text-sm font-semibold text-ink-2 mb-2">
-                  หน่วย
-                </label>
-                <input
-                  className="input-field"
-                  value={editForm.unit}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, unit: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-ink-2 mb-2">
-                หมวดหมู่
-              </label>
-              <select
-                className="input-field"
-                value={editForm.category}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, category: e.target.value })
-                }
-              >
-                {CATS.map((c) => (
-                  <option key={c}>{c}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-ink-2 mb-2">
-                🔻 จำนวนขั้นต่ำ
-              </label>
-              <input
-                type="number"
-                className="input-field"
-                value={editForm.minThreshold}
-                onChange={(e) =>
-                  setEditForm({
-                    ...editForm,
-                    minThreshold: parseInt(e.target.value) || 0,
-                  })
-                }
-              />
-            </div>
-            <button
-              onClick={handleUpdate}
-              disabled={busy}
-              className="btn-primary w-full"
-            >
-              {busy ? "กำลังบันทึก..." : "บันทึกการแก้ไข"}
-            </button>
+            <ModalForm
+              title="แก้ไข"
+              onSave={handleUpdate}
+              onClose={() => setEditing(null)}
+              isEdit={true}
+            />
           </div>
         </div>
       )}
+
       {message && (
         <div
           className={`fixed bottom-20 left-1/2 -translate-x-1/2 z-toast px-6 py-3 rounded-xl text-sm font-medium shadow-lg ${message.startsWith("✅") ? "bg-success-bg text-success border border-success/20" : "bg-danger-bg text-danger border border-danger/20"}`}
@@ -576,6 +519,7 @@ export default function ManagePage() {
           {message}
         </div>
       )}
+
       <BottomNav current="manage" />
     </div>
   );
