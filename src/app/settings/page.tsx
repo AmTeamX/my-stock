@@ -9,7 +9,7 @@ import { storeWard } from "../components/WardGuard";
 export default function SettingsPage() {
   const { userId, ready } = useLiffUser();
   const { wardId, wardName } = useWardId();
-  const [notify, setNotify] = useState(false);
+  const [notify, setNotify] = useState(true);
   const [displayName, setDisplayName] = useState("");
   const [inviteCode, setInviteCode] = useState("");
   const [wardNameEdit, setWardNameEdit] = useState("");

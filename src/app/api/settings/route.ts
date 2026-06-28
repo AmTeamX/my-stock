@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     const userId = request.nextUrl.searchParams.get("userId") || "";
     const notify = await getUserNotifySetting(userId);
-    return NextResponse.json({ notify });
+    return NextResponse.json({ notify: true });
   } catch (error: any) {
     return NextResponse.json({ notify: false }); // default false
   }
