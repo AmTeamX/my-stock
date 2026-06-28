@@ -316,7 +316,7 @@ export default function ManagePage() {
       {/* Add Modal */}
       {showAdd && (
         <div
-          className="fixed inset-0 z-modal flex items-end sm:items-center justify-center"
+          className="fixed inset-0 z-modal flex items-center justify-center"
           onClick={() => {
             setShowAdd(false);
             setMessage("");
@@ -486,7 +486,7 @@ export default function ManagePage() {
       {/* Edit Modal */}
       {editing && (
         <div
-          className="fixed inset-0 z-modal flex items-end sm:items-center justify-center"
+          className="fixed inset-0 z-modal flex items-center justify-center"
           onClick={() => setEditing(null)}
         >
           <div
@@ -593,7 +593,7 @@ export default function ManagePage() {
       {/* Restock Modal */}
       {restocking && (
         <div
-          className="fixed inset-0 z-modal flex items-end sm:items-center justify-center"
+          className="fixed inset-0 z-modal flex items-center justify-center"
           onClick={() => setRestocking(null)}
         >
           <div

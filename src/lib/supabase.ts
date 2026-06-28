@@ -334,7 +334,7 @@ export async function registerUser(userId: string): Promise<void> {
       .upsert(
         {
           user_id: userId,
-          notify: true,
+          notify: false,
           updated_at: new Date().toISOString(),
         } as any,
         { onConflict: "user_id" },
@@ -351,9 +351,9 @@ export async function getUserNotifySetting(userId: string): Promise<boolean> {
       .select("notify")
       .eq("user_id", userId)
       .maybeSingle();
-    return (data as any)?.notify ?? true;
+    return (data as any)?.notify ?? false;
   } catch {
-    return true;
+    return false;
   }
 }
 

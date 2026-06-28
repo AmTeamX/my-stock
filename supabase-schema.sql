@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS transactions (
 -- User notification preference
 CREATE TABLE IF NOT EXISTS user_settings (
   user_id    TEXT PRIMARY KEY,
-  notify     BOOLEAN NOT NULL DEFAULT true,
+  notify     BOOLEAN NOT NULL DEFAULT false,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

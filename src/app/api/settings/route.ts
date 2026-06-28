@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const notify = await getUserNotifySetting(userId);
     return NextResponse.json({ notify });
   } catch (error: any) {
-    return NextResponse.json({ notify: true }); // default true
+    return NextResponse.json({ notify: false }); // default false
   }
 }
 
