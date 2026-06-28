@@ -7,7 +7,9 @@ export async function GET(request: NextRequest) {
     const rows = await getTransactions(wardId, 50);
     const transactions = rows.map((tx) => ({
       id: tx.id,
-      date: new Date(tx.created_at).toLocaleString("th-TH"),
+      date: new Date(tx.created_at).toLocaleString("th-TH", {
+        timeZone: "Asia/Bangkok",
+      }),
       stockName: tx.stock_name,
       type: tx.type,
       quantity: tx.quantity,
