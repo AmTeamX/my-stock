@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>คู่มือการใช้งาน MyStock — สำหรับพยาบาล</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Thai', sans-serif;
+    background: #f0fdf4;
+    color: #1a1a1a;
+    line-height: 1.7;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 16px 80px;
+  }
+  .cover {
+    background: linear-gradient(135deg, #06C755, #00A040);
+    color: white;
+    text-align: center;
+    padding: 48px 24px 36px;
+    margin: 0 -16px 32px;
+    border-radius: 0 0 32px 32px;
+  }
+  .cover h1 { font-size: 36px; font-weight: 800; margin-bottom: 4px; }
+  .cover p { font-size: 16px; opacity: 0.85; }
+  .cover .emoji { font-size: 60px; margin-bottom: 8px; }
+
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #06C755;
+    margin: 28px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 3px solid #dcfce7;
+  }
+  h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #333;
+    margin: 16px 0 8px;
+  }
+  p { font-size: 15px; margin-bottom: 10px; }
+  ul { padding-left: 20px; margin-bottom: 12px; }
+  li { font-size: 15px; margin-bottom: 4px; }
+
+  .card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .card h3 { margin-top: 0; display: flex; align-items: center; gap: 8px; }
+
+  .step {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 32px; height: 32px;
+    background: #06C755;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .page-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+  .page-card .icon { font-size: 36px; margin-bottom: 4px; }
+  .page-card .name { font-weight: 700; font-size: 16px; }
+  .page-card .desc { font-size: 13px; color: #888; margin-top: 2px; }
+
+  .tip {
+    background: #fefce8;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+  .tip strong { color: #92400e; }
+
+  .footer {
+    text-align: center;
+    color: #999;
+    font-size: 13px;
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  @media print {
+    body { background: white; padding: 0; max-width: 100%; }
+    .cover { margin: 0; border-radius: 0; }
+    .card { box-shadow: none; break-inside: avoid; }
+    .grid-2 { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="emoji">📦</div>
+  <h1>MyStock</h1>
+  <p>คู่มือการใช้งานสำหรับพยาบาล</p>
+</div>
+
+<h2>📌 MyStock คืออะไร?</h2>
+<p><strong>MyStock</strong> เป็นระบบจัดการคลังเวชภัณฑ์ผ่าน LINE ช่วยให้พยาบาลทุกคนในวอร์ดรู้ว่าของมีอะไรบ้าง ใกล้หมดเมื่อไหร่ ใครเบิกอะไรไป และแจ้งเตือนอัตโนมัติเมื่อของใกล้หมด</p>
+
+<div class="card">
+  <h3>✅ ใช้ MyStock แล้วจะได้อะไร?</h3>
+  <ul>
+    <li>รู้จำนวนของคงเหลือแบบเรียลไทม์ — ไม่ต้องเดินไปนับเอง</li>
+    <li>เบิกของผ่านมือถือ — ระบบตัดสต็อกอัตโนมัติ</li>
+    <li>แจ้งเตือนเมื่อของใกล้หมด — ทุกคนในทีมรู้พร้อมกัน</li>
+    <li>ดูประวัติย้อนหลังได้ — ใครเบิกอะไร เมื่อไหร่</li>
+    <li>แต่ละวอร์ดแยกข้อมูลกัน — ICU, ศัลยกรรม, อายุรกรรม ไม่ปนกัน</li>
+  </ul>
+</div>
+
+<h2>🚀 เริ่มต้นใช้งาน (ครั้งแรก)</h2>
+
+<div class="step"><div class="step-num">1</div><div><strong>เปิด LINE</strong> — เข้าแชท <strong>MyStock</strong> (Official Account) แล้วกดเมนูด้านล่าง</div></div>
+<div class="step"><div class="step-num">2</div><div><strong>ยืนยันตัวตน</strong> — กดปุ่ม "เข้าสู่ระบบด้วย LINE" (ทำครั้งเดียว)</div></div>
+<div class="step"><div class="step-num">3</div><div><strong>เลือกวอร์ด</strong> — ถ้าเป็นคนแรกของวอร์ด → กด <strong>"สร้างวอร์ดใหม่"</strong> ตั้งชื่อวอร์ด<br>ถ้ามีวอร์ดอยู่แล้ว → ขอรหัสจากเพื่อน → กด <strong>"เข้าร่วม"</strong> ใส่รหัส</div></div>
+<div class="step"><div class="step-num">4</div><div><strong>ตั้งชื่อตัวเอง</strong> — ไปที่หน้า ⚙️ ตั้งค่า → ใส่ชื่อ → บันทึก (จะได้รู้ว่าใครเบิกอะไร)</div></div>
+
+<div class="tip">
+  <strong>💡 tip:</strong> หลังจากสร้างวอร์ดแล้ว ไปที่ ⚙️ ตั้งค่า → <strong>"เชิญเพื่อนเข้าวอร์ด"</strong> → คัดลอกรหัสส่งให้เพื่อนใน LINE ได้เลย
+</div>
+
+<h2>📱 4 หน้าหลักของ MyStock</h2>
+
+<div class="grid-2">
+  <div class="page-card">
+    <div class="icon">📤</div>
+    <div class="name">เบิก</div>
+    <div class="desc">ดูของทั้งหมด • ค้นหา • กดเบิก</div>
+  </div>
+  <div class="page-card">
+    <div class="icon">📦</div>
+    <div class="name">จัดการ</div>
+    <div class="desc">เพิ่มของใหม่ • เติมของ • แก้ไข • ลบ</div>
+  </div>
+  <div class="page-card">
+    <div class="icon">📋</div>
+    <div class="name">ประวัติ</div>
+    <div class="desc">ดูว่าใครเบิกอะไร เมื่อไหร่</div>
+  </div>
+  <div class="page-card">
+    <div class="icon">⚙️</div>
+    <div class="name">ตั้งค่า</div>
+    <div class="desc">ชื่อ • แจ้งเตือน • เชิญเพื่อน</div>
+  </div>
+</div>
+
+<h3>📤 หน้าเบิก — ใช้บ่อยที่สุด</h3>
+<div class="card">
+  <ul>
+    <li><strong>ค้นหาของ</strong> — พิมพ์ชื่อของในช่อง 🔍 ด้านบน</li>
+    <li><strong>กรองหมวดหมู่</strong> — กดปุ่มหมวดหมู่ เช่น "ยา" "เวชภัณฑ์" เพื่อดูเฉพาะหมวดนั้น</li>
+    <li><strong>ดูจำนวนคงเหลือ</strong> — แถบสีเขียว = ของยังพอ · เหลือง = เริ่มน้อย · แดง = ใกล้หมด</li>
+    <li><strong>เบิกของ</strong> — กด <strong>−1</strong> (เบิก 1 ชิ้น) หรือ <strong>−5</strong> (เบิก 5 ชิ้น) หรือ <strong>ระบุจำนวน</strong> เพื่อกรอกเลขเอง</li>
+    <li>ถ้าของใกล้หมด ระบบจะส่งข้อความแจ้งเตือนใน LINE ให้ทุกคนในวอร์ด</li>
+  </ul>
+</div>
+
+<h3>📦 หน้าจัดการ — สำหรับคนดูแลสต็อก</h3>
+<div class="card">
+  <ul>
+    <li><strong>+ เพิ่ม</strong> — เพิ่มรายการใหม่: ใส่ชื่อ, จำนวน, หน่วย, หมวดหมู่, จำนวนขั้นต่ำ, รูปภาพ (ไม่บังคับ)</li>
+    <li><strong>+ เติม</strong> (ปุ่มสีเขียวในรายการ) — เติมจำนวนของที่มีอยู่แล้ว เช่น รับของมาเพิ่ม 10 กล่อง</li>
+    <li><strong>✏️ แก้ไข</strong> — เปลี่ยนชื่อ, จำนวน, หน่วย, หมวดหมู่, จำนวนขั้นต่ำ</li>
+    <li><strong>🗑️ ลบ</strong> — ลบรายการที่ไม่ใช้แล้ว (ต้องกดยืนยันก่อน)</li>
+  </ul>
+</div>
+
+<h3>📋 หน้าประวัติ</h3>
+<div class="card">
+  <ul>
+    <li>ดูว่าใครเติมของหรือเบิกของ เมื่อไหร่ จำนวนเท่าไหร่</li>
+    <li>กดปุ่ม <strong>"ทั้งหมด" "เติม" "เบิก"</strong> เพื่อกรองดูเฉพาะรายการที่ต้องการ</li>
+    <li>แถบสีเขียว = เติมของ · แถบสีส้ม = เบิกของ</li>
+  </ul>
+</div>
+
+<h3>⚙️ หน้าตั้งค่า</h3>
+<div class="card">
+  <ul>
+    <li><strong>👤 ชื่อของคุณ</strong> — ตั้งชื่อที่เพื่อนในทีมจะเห็น (เช่น "พี่แอน", "น้องบี")</li>
+    <li><strong>🔔 แจ้งเตือนเมื่อของใกล้หมด</strong> — เปิดเพื่อรับข้อความ LINE เมื่อของใกล้หมด (แนะนำให้เปิด!)</li>
+    <li><strong>🔗 เชิญเพื่อนเข้าวอร์ด</strong> — คัดลอกรหัสส่งให้เพื่อนใน LINE</li>
+    <li><strong>✏️ เปลี่ยนชื่อวอร์ด</strong> — เปลี่ยนชื่อวอร์ดได้ (เช่น "ICU ชั้น 3")</li>
+    <li><strong>🔄 เปลี่ยนวอร์ด</strong> — ย้ายไปอยู่วอร์ดอื่น</li>
+    <li><strong>🚪 ออกจากวอร์ด</strong> — ออกจากวอร์ดปัจจุบัน</li>
+  </ul>
+</div>
+
+<h2>🔔 การแจ้งเตือนทำงานยังไง?</h2>
+
+<div class="card">
+  <p>เมื่อมีคนเบิกของแล้ว<strong>จำนวนคงเหลือต่ำกว่าขั้นต่ำที่ตั้งไว้</strong>:</p>
+  <div class="step"><div class="step-num">1</div><div>ระบบเช็คว่าใครในวอร์ดเปิดแจ้งเตือนไว้บ้าง (เฉพาะคนที่เปิด 🔔 ในหน้าตั้งค่า)</div></div>
+  <div class="step"><div class="step-num">2</div><div>ส่งข้อความ LINE ไปหาทุกคนที่เปิดไว้ — บอกชื่อของ จำนวนที่เหลือ และจำนวนขั้นต่ำ</div></div>
+  <div class="step"><div class="step-num">3</div><div>ทุกคนเห็นพร้อมกัน → รู้ว่าต้องสั่งของเพิ่ม</div></div>
+</div>
+
+<div class="tip">
+  <strong>💡 tip:</strong> ไปที่ ⚙️ ตั้งค่า → เปิด 🔔 <strong>"แจ้งเตือนฉันเมื่อของใกล้หมด"</strong> เพื่อไม่พลาดเวลาของใกล้หมด
+</div>
+
+<div class="tip">
+  <strong>💡 tip:</strong> จำนวนขั้นต่ำตั้งแยกแต่ละรายการได้ เช่น ถุงมือ 10 กล่อง, เข็มฉีดยา 50 ชิ้น — ตอนเพิ่มหรือแก้ไขรายการ ใส่เลขในช่อง "จำนวนขั้นต่ำก่อนแจ้งเตือน"
+</div>
+
+<h2>🏥 ตัวอย่างการใช้งานจริง</h2>
+
+<div class="card">
+  <p><strong>สถานการณ์:</strong> พยาบาลเวรเช้าเห็นว่าถุงมือเหลือ 5 กล่อง (ขั้นต่ำตั้งไว้ 10)</p>
+  <div class="step"><div class="step-num">1</div><div>เปิด LINE → กดเมนู MyStock → เข้าหน้า <strong>เบิก</strong></div></div>
+  <div class="step"><div class="step-num">2</div><div>เจอ "ถุงมือยาง" แถบสีแดง (⚠️ ใกล้หมด) → เหลือ 5 กล่อง</div></div>
+  <div class="step"><div class="step-num">3</div><div>เบิกไป 3 กล่อง → เหลือ 2 กล่อง → <strong>ต่ำกว่าขั้นต่ำ 10</strong></div></div>
+  <div class="step"><div class="step-num">4</div><div>💬 ระบบส่ง LINE แจ้งเตือน: "⚠️ ถุงมือยาง ใกล้หมด! เหลือ 2 กล่อง" → ทุกคนในวอร์ดเห็น</div></div>
+  <div class="step"><div class="step-num">5</div><div>หัวหน้าเวรสั่งของเพิ่ม → ของมาถึง → ไปที่ <strong>จัดการ</strong> → กด <strong>+ เติม</strong> → ใส่จำนวน → อัปเดตสต็อก</div></div>
+</div>
+
+<div class="footer">
+  <strong>MyStock</strong> · ระบบจัดการคลังเวชภัณฑ์ผ่าน LINE<br>
+  สอบถามการใช้งาน: ติดต่อแอดมินผ่าน LINE Official Account
+</div>
+
+</body>
+</html>
