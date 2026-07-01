@@ -1,5 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStockList, updateStock, deleteStock } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
+
+// Helper to log transaction
+async function logTx(opts: {
+  wardId: string;
+  stockName: string;
+  type: "add" | "withdraw";
+  quantity: number;
+  userId: string;
+  note: string;
+}) {
+  const sb = createClient(
+    process.env.SUPABASE_URL || "",
+    process.env.SUPABASE_ANON_KEY || "",
+  );
+  await sb.from("transactions").insert({
+    id: `TX-${Date.now()}`,
+    ward_id: opts.wardId,
+    stock_name: opts.stockName,
+    type: opts.type,
+    quantity: opts.quantity,
+    user_id: opts.userId,
+    note: opts.note,
+  } as any);
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,10 +48,24 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const { stockId, name, quantity, unit, minThreshold, category, wardId } =
-      await request.json();
+    const {
+      stockId,
+      name,
+      quantity,
+      unit,
+      minThreshold,
+      category,
+      wardId,
+      userId,
+      restockQty,
+    } = await request.json();
     if (!stockId || !name)
       return NextResponse.json({ error: "ข้อมูลไม่ครบ" }, { status: 400 });
+
+    // Get old stock to compare
+    const stocks = await getStockList(wardId || "");
+    const old = stocks.find((s) => s.id === stockId);
+
     await updateStock({
       wardId: wardId || "",
       stockId,
@@ -36,6 +75,19 @@ export async function PUT(request: NextRequest) {
       minThreshold: parseInt(minThreshold) || 0,
       category: category || "อื่นๆ",
     });
+
+    // Log restock transaction if quantity increased
+    if (restockQty && restockQty > 0 && old) {
+      await logTx({
+        wardId: wardId || "",
+        stockName: name,
+        type: "add",
+        quantity: parseInt(restockQty),
+        userId: userId || "unknown",
+        note: `เติมเพิ่ม (จาก ${old.quantity} เป็น ${parseInt(quantity)})`,
+      });
+    }
+
     return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

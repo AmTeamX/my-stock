@@ -202,6 +202,8 @@ export default function ManagePage() {
           minThreshold: restocking.minThreshold,
           category: restocking.category,
           wardId,
+            userId: userName,
+            restockQty: qty,
         }),
       });
       if (!r.ok) throw new Error((await r.json()).error);
