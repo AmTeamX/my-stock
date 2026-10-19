@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { action, name, code, userId, wardId } = body;
+    const { action, name, code, userId, wardId, customCode } = body;
     if (!userId)
       return NextResponse.json({ error: "userId required" }, { status: 400 });
 
@@ -65,8 +65,8 @@ export async function POST(request: NextRequest) {
     if (action === "regenerateCode") {
       if (!wardId)
         return NextResponse.json({ error: "wardId required" }, { status: 400 });
-      const code = await regenerateInviteCode(wardId, userId);
-      return NextResponse.json({ success: true, code });
+      const newCode = await regenerateInviteCode(wardId, userId, customCode || undefined);
+      return NextResponse.json({ success: true, code: newCode });
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });

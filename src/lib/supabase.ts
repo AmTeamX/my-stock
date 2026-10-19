@@ -156,7 +156,8 @@ export async function leaveWard(wardId: string, userId: string): Promise<void> {
 
 export async function regenerateInviteCode(
   wardId: string,
-  userId: string
+  userId: string,
+  customCode?: string
 ): Promise<string> {
   const { data: ward } = await sb()
     .from("wards")
@@ -168,19 +169,37 @@ export async function regenerateInviteCode(
   }
 
   let code = "";
-  let attempts = 0;
-  while (attempts < 10) {
-    code = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+  if (customCode) {
+    const clean = customCode.trim().toUpperCase();
+    if (clean.length < 3) throw new Error("รหัสต้องมีอย่างน้อย 3 ตัวอักษร");
+    if (clean.length > 12) throw new Error("รหัสต้องไม่เกิน 12 ตัวอักษร");
+    if (!/^[A-Z0-9]+$/.test(clean)) throw new Error("รหัสใช้ได้เฉพาะ A-Z และ 0-9");
+
     const { data: existing } = await sb()
       .from("wards")
       .select("id")
-      .eq("invite_code", code)
+      .eq("invite_code", clean)
+      .neq("id", wardId)
       .maybeSingle();
-    if (!existing) break;
-    attempts++;
-  }
-  if (!code || attempts >= 10) {
-    code = Date.now().toString(36).slice(-6).toUpperCase().padStart(6, "X");
+    if (existing) throw new Error(`รหัส "${clean}" ถูกใช้แล้ว กรุณาเปลี่ยนใหม่`);
+
+    code = clean;
+  } else {
+    let attempts = 0;
+    while (attempts < 10) {
+      code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const { data: existing } = await sb()
+        .from("wards")
+        .select("id")
+        .eq("invite_code", code)
+        .maybeSingle();
+      if (!existing) break;
+      attempts++;
+    }
+    if (!code || attempts >= 10) {
+      code = Date.now().toString(36).slice(-6).toUpperCase().padStart(6, "X");
+    }
   }
 
   await sb()

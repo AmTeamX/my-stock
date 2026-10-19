@@ -12,6 +12,7 @@ export default function SettingsPage() {
   const [notify, setNotify] = useState(true);
   const [displayName, setDisplayName] = useState("");
   const [inviteCode, setInviteCode] = useState("");
+  const [customCode, setCustomCode] = useState("");
   const [wardNameEdit, setWardNameEdit] = useState("");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -126,8 +127,9 @@ export default function SettingsPage() {
       .then(() => setMessage("✅ คัดลอกรหัสแล้ว!"));
   };
 
-  const handleRegenerateCode = async () => {
-    if (!confirm("เปลี่ยนรหัสเชิญ? รหัสเก่าจะใช้ไม่ได้อีก")) return;
+  const handleRegenerateCode = async (useCustom?: string) => {
+    const codeToUse = useCustom !== undefined ? useCustom : undefined;
+    if (!useCustom && !confirm("สุ่มรหัสใหม่? รหัสเก่าจะใช้ไม่ได้อีก")) return;
     setMessage("");
     try {
       const res = await fetch("/api/wards", {
@@ -137,11 +139,13 @@ export default function SettingsPage() {
           action: "regenerateCode",
           wardId,
           userId,
+          customCode: codeToUse,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "ไม่สำเร็จ");
       setInviteCode(data.code);
+      setCustomCode("");
       setMessage("✅ เปลี่ยนรหัสเชิญสำเร็จ!");
     } catch (err: any) {
       setMessage(`❌ ${err.message}`);
@@ -234,11 +238,34 @@ export default function SettingsPage() {
               📋 คัดลอก
             </button>
           </div>
+
+          {/* Custom code input */}
+          <div className="mt-3 pt-3 border-t border-rule">
+            <p className="text-xs text-muted mb-2">หรือตั้งรหัสเอง (A-Z, 0-9, 3-12 ตัว)</p>
+            <div className="flex gap-2">
+              <input
+                className="input-field flex-1 text-sm"
+                placeholder="เช่น MYWARD"
+                value={customCode}
+                onChange={(e) => setCustomCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
+                onKeyDown={(e) => e.key === "Enter" && customCode.trim() && handleRegenerateCode(customCode.trim())}
+                maxLength={12}
+              />
+              <button
+                onClick={() => customCode.trim() && handleRegenerateCode(customCode.trim())}
+                disabled={!customCode.trim()}
+                className="btn-primary text-sm disabled:opacity-40"
+              >
+                ตั้งค่า
+              </button>
+            </div>
+          </div>
+
           <button
-            onClick={handleRegenerateCode}
+            onClick={() => handleRegenerateCode()}
             className="btn-ghost w-full mt-3 text-sm text-muted"
           >
-            🔄 เปลี่ยนรหัสเชิญ
+            🎲 สุ่มรหัสใหม่
           </button>
         </div>
 
