@@ -126,6 +126,28 @@ export default function SettingsPage() {
       .then(() => setMessage("✅ คัดลอกรหัสแล้ว!"));
   };
 
+  const handleRegenerateCode = async () => {
+    if (!confirm("เปลี่ยนรหัสเชิญ? รหัสเก่าจะใช้ไม่ได้อีก")) return;
+    setMessage("");
+    try {
+      const res = await fetch("/api/wards", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "regenerateCode",
+          wardId,
+          userId,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "ไม่สำเร็จ");
+      setInviteCode(data.code);
+      setMessage("✅ เปลี่ยนรหัสเชิญสำเร็จ!");
+    } catch (err: any) {
+      setMessage(`❌ ${err.message}`);
+    }
+  };
+
   if (loading || !ready) {
     return (
       <div className="pb-24">
@@ -212,6 +234,12 @@ export default function SettingsPage() {
               📋 คัดลอก
             </button>
           </div>
+          <button
+            onClick={handleRegenerateCode}
+            className="btn-ghost w-full mt-3 text-sm text-muted"
+          >
+            🔄 เปลี่ยนรหัสเชิญ
+          </button>
         </div>
 
         {/* Rename Ward */}

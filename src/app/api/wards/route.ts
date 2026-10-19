@@ -5,6 +5,7 @@ import {
   joinWardByCode,
   renameWard,
   leaveWard,
+  regenerateInviteCode,
 } from "@/lib/supabase";
 
 export async function GET(request: NextRequest) {
@@ -59,6 +60,13 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "wardId required" }, { status: 400 });
       await leaveWard(wardId, userId);
       return NextResponse.json({ success: true });
+    }
+
+    if (action === "regenerateCode") {
+      if (!wardId)
+        return NextResponse.json({ error: "wardId required" }, { status: 400 });
+      const code = await regenerateInviteCode(wardId, userId);
+      return NextResponse.json({ success: true, code });
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });

@@ -154,6 +154,43 @@ export async function leaveWard(wardId: string, userId: string): Promise<void> {
     .eq("user_id", userId);
 }
 
+export async function regenerateInviteCode(
+  wardId: string,
+  userId: string
+): Promise<string> {
+  const { data: ward } = await sb()
+    .from("wards")
+    .select("created_by")
+    .eq("id", wardId)
+    .single();
+  if (!ward || (ward as any).created_by !== userId) {
+    throw new Error("เฉพาะคนสร้างวอร์ดเท่านั้นที่เปลี่ยนรหัสเชิญได้");
+  }
+
+  let code = "";
+  let attempts = 0;
+  while (attempts < 10) {
+    code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const { data: existing } = await sb()
+      .from("wards")
+      .select("id")
+      .eq("invite_code", code)
+      .maybeSingle();
+    if (!existing) break;
+    attempts++;
+  }
+  if (!code || attempts >= 10) {
+    code = Date.now().toString(36).slice(-6).toUpperCase().padStart(6, "X");
+  }
+
+  await sb()
+    .from("wards")
+    .update({ invite_code: code } as any)
+    .eq("id", wardId);
+
+  return code;
+}
+
 // ===== STOCK =====
 export async function getStockList(wardId: string): Promise<StockRow[]> {
   const { data, error } = await sb()
