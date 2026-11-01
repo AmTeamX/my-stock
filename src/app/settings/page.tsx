@@ -13,6 +13,9 @@ export default function SettingsPage() {
   const [displayName, setDisplayName] = useState("");
   const [inviteCode, setInviteCode] = useState("");
   const [customCode, setCustomCode] = useState("");
+  const [isOwner, setIsOwner] = useState(false);
+  const [codeBusy, setCodeBusy] = useState(false);
+  const [codeMessage, setCodeMessage] = useState("");
   const [wardNameEdit, setWardNameEdit] = useState("");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -35,6 +38,7 @@ export default function SettingsPage() {
       if (current) {
         setInviteCode(current.invite_code || "");
         setWardNameEdit(current.name || "");
+        setIsOwner(current.created_by === userId);
       }
     } catch {
       /* ignore */
@@ -128,9 +132,13 @@ export default function SettingsPage() {
   };
 
   const handleRegenerateCode = async (useCustom?: string) => {
-    const codeToUse = useCustom !== undefined ? useCustom : undefined;
+    if (!isOwner) {
+      setCodeMessage("❌ เฉพาะคนสร้างวอร์ดเท่านั้นที่เปลี่ยนรหัสเชิญได้");
+      return;
+    }
     if (!useCustom && !confirm("สุ่มรหัสใหม่? รหัสเก่าจะใช้ไม่ได้อีก")) return;
-    setMessage("");
+    setCodeMessage("");
+    setCodeBusy(true);
     try {
       const res = await fetch("/api/wards", {
         method: "POST",
@@ -139,16 +147,18 @@ export default function SettingsPage() {
           action: "regenerateCode",
           wardId,
           userId,
-          customCode: codeToUse,
+          customCode: useCustom || undefined,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "ไม่สำเร็จ");
       setInviteCode(data.code);
       setCustomCode("");
-      setMessage("✅ เปลี่ยนรหัสเชิญสำเร็จ!");
+      setCodeMessage(`✅ เปลี่ยนรหัสเป็น ${data.code} แล้ว`);
     } catch (err: any) {
-      setMessage(`❌ ${err.message}`);
+      setCodeMessage(`❌ ${err.message}`);
+    } finally {
+      setCodeBusy(false);
     }
   };
 
